@@ -8,15 +8,19 @@
  * @param {boolean} vars.enableSelections:
  * @description
  * A simple Combo Chart
+ * @version 1.2: Added Tooltips
  * @version 1.1: Added 2nd line
+ * @version 1.0: Initial Setup
  */
 
 define( [ 
 	"qlik",
 	"jquery",
+	'css!./SenseUI-ComboChart.css',
 	"./d3.v3.min",
+	'./d3-tip'
 ],
-(qlik, $, d3) => {
+(qlik, $, css, d3) => {
 	// Define properties
 	var me = {
 		initialProperties: {
@@ -261,7 +265,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		let vars = $.extend({
-			v: '1.1',
+			v: '1.2',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -359,12 +363,15 @@ define( [
 				display: inline-block;
 				margin-right: 5px;
 			}
+			.d3-tip .box.measure1,
 			#${vars.id}_inner .legend .column .box.measure1 {
 				background-color: ${vars.bar.color};
 			}
+			.d3-tip .box.measure2,
 			#${vars.id}_inner .legend .column .box.measure2 {
 				background-color: ${vars.line.color};
 			}
+			.d3-tip .box.measure3,
 			#${vars.id}_inner .legend .column .box.measure3 {
 				background-color: ${vars.line2.color};
 			}
@@ -419,13 +426,7 @@ define( [
 			.orient("left")
 			.ticks(8, "")
 			.tickFormat(function(d,i){
-				var display = Math.round(d);
-				if (d >= 1000 && d<1000000) {
-					display = Math.round(d/1000) + 'K'
-				} else if (d >= 1000000) {
-					display = Math.round(d/1000000) + 'M'
-				}
-				return display; 
+				return roundNumber(d); 
 			})
 			
 		var svg = d3.select(`#${vars.id}_inner .content`).append("svg")
@@ -436,23 +437,6 @@ define( [
 
 		x.domain(vars.data.map(function(d) { return d.dimension; }));
 		y.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
-
-		if (vars.legend) {
-			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1}</div>`;
-			if (vars.measure2) {
-				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2}</div>`;
-			}
-			if (vars.measure3) {
-				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3}</div>`;
-			}
-			svg.append("foreignObject")
-				.attr('width', 500)
-				.attr('height', 50)
-				.attr("y", `${height+vars.margin.bottom-15}`)
-			.append("xhtml:div")
-				.attr("class", "legend")
-				.html(displayLegend);
-		}
 
 		svg.append("g")
 			.attr("class", "x axis")
@@ -472,7 +456,14 @@ define( [
 			.attr("x", function(d) { return x(d.dimension); })
 			.attr("width", (vars.bar.width) ? vars.bar.width : x.rangeBand())
 			.attr("y", function(d) { return y(d.measureNum); })
-			.attr("height", function(d) { return height - y(d.measureNum); })
+			.attr("height", function(d) { return height - y(d.measureNum); })			
+			.on('mouseover', function(d,i){
+				tip.show(d, i); 
+				setTimeout(function(){tip.hide();}, 10000);
+			})
+			.on('mouseleave', function(d,i){
+				tip.hide();
+			})
 			.on('click', function(d,i) {
 				if (vars.enableSelections) {
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
@@ -530,6 +521,48 @@ define( [
 					.attr("cy", function(d) { return y3(d.measureNum3); })
 					.attr("transform", `translate(${vars.margin.left},0)`)
 		}
+
+		// TOOLTIPS
+		var tip = d3.tip()
+			.attr('class', vars.id + ' d3-tip')
+			.offset([-10, 0])
+			.html(function(d,i) {
+				var displayMeasure1 = roundNumber(d.measure);
+				var html = `
+					<div class="row dimension">${d.dimension}</div>
+					<div class="row measure"><div class="box measure1"></div>${vars.measure1}: ${displayMeasure1}</div>
+				`;
+				if (vars.measure2) {
+					var displayMeasure2 = roundNumber(d.measure2);
+					html += `<div class="row measure"><div class="box measure2"></div>${vars.measure2}: ${displayMeasure2}</div>`;
+				}
+				if (vars.measure3) {
+					var displayMeasure3 = roundNumber(d.measure3);
+					html += `<div class="row measure"><div class="box measure3"></div>${vars.measure3}: ${displayMeasure3}</div>`;
+				}
+				return html;
+			})
+		svg.call(tip);
+
+		// LEGEND
+		if (vars.legend) {
+			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1}</div>`;
+			if (vars.measure2) {
+				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2}</div>`;
+			}
+			if (vars.measure3) {
+				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3}</div>`;
+			}
+			svg.append("foreignObject")
+				.attr('width', 500)
+				.attr('height', 50)
+				.attr("y", `${height+vars.margin.bottom-15}`)
+			.append("xhtml:div")
+				.attr("class", "legend")
+				.html(displayLegend);
+		}
+
+		// WRAP LABELS
 		function wrap (text, width) {
 			text.each(function() {
 				var breakChars = ['/', '&', '-'],
@@ -567,6 +600,16 @@ define( [
 				}
 				}
 			});
+
+			roundNumber = (num) => {
+				num = Math.round(num);
+				if (num >= 1000 && num<1000000) {
+					num = Math.round(num/1000) + 'K'
+				} else if (num >= 1000000) {
+					num = Math.round(num/1000000) + 'M'
+				}
+				return num;
+			}
 		}
 
 		console.info(`%c ${vars.name}: `, 'color: red', `v ${vars.v}`)
