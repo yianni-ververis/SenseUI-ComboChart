@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## SenseUI-BarChart
 
 A more customizable and Mobile Friendly Combo Chart for Qlik Sense
@@ -43,3 +44,7 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 ![SenseUI - Combo Chart](/preview.png?raw=true "SenseUI - Combo Chart")
 
 [Download zip file](https://github.com/yianni-ververis/SenseUI-ComboChart/archive/master.zip)
+=======
+# SenseUI-ComboChart
+Qlik Sense Combo Chart
+>>>>>>> a5830f7637b21bd277b7be10bf76890a6e75353c
