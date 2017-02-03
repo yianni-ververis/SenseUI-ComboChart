@@ -35,11 +35,11 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 - Dot Stroke Width
 - Dot Radius
 
+![SenseUI - Combo Chart](/preview.png?raw=true "SenseUI - Combo Chart")
+
 #### Coming up
 - Tooltips
 - Multiple lines for more than one measure
 - Multiple Selections
-
-![SenseUI - Combo Chart](/preview.png?raw=true "SenseUI - Combo Chart")
 
 [Download zip file](https://github.com/yianni-ververis/SenseUI-ComboChart/archive/master.zip)
