@@ -8,6 +8,7 @@
  * @param {boolean} vars.enableSelections:
  * @description
  * A simple Combo Chart
+ * @version 1.1: Added 2nd line
  */
 
 define( [ 
@@ -23,7 +24,7 @@ define( [
 				qDimensions: [],
 				qMeasures: [],
 				qInitialDataFetch: [{
-					qWidth: 3,
+					qWidth: 4,
 					qHeight: 1000
 				}]
 			}
@@ -40,7 +41,7 @@ define( [
 				measures: {
 					uses: "measures",
 					min: 1,
-					max: 2
+					max: 3
 				},
 				sorting: {
 					uses: "sorting"
@@ -137,9 +138,9 @@ define( [
 								}
 							},
 						},
-						customLine: {
+						customLine1: {
 							type: "items",
-							label: "Line Chart",
+							label: "Line Chart 1",
 							show : function(data) {
 								if (data.qHyperCubeDef.qMeasures.length>1) {
 									return true;
@@ -189,6 +190,59 @@ define( [
 									ref: "vars.dot.radius"
 								},
 							}
+						},
+						customLine2: {
+							type: "items",
+							label: "Line Chart 2",
+							show : function(data) {
+								if (data.qHyperCubeDef.qMeasures.length>2) {
+									return true;
+								}
+							},
+							items: {
+								lineColor2: {
+									type: "string",
+									expression: "none",
+									label: "Line Color",
+									defaultValue: "#1F78B4",
+									ref: "vars.line2.color"
+								},
+								lineWidth2: {
+									type: "string",
+									expression: "none",
+									label: "Line Width",
+									defaultValue: "3",
+									ref: "vars.line2.width"
+								},
+								dotColor2: {
+									type: "string",
+									expression: "none",
+									label: "Dot Color",
+									defaultValue: "#1F78B4",
+									ref: "vars.dot2.color"
+								},
+								dotStrokeColor2: {
+									type: "string",
+									expression: "none",
+									label: "Dot Stroke Color",
+									defaultValue: "#ec5e08",
+									ref: "vars.dot2.strokeColor"
+								},
+								dotStrokeWidth2: {
+									type: "string",
+									expression: "none",
+									label: "Dot Stroke Width",
+									defaultValue: "3",
+									ref: "vars.dot2.strokeWidth"
+								},
+								dotRadius2: {
+									type: "string",
+									expression: "none",
+									label: "Dot Radius",
+									defaultValue: "5",
+									ref: "vars.dot2.radius"
+								},
+							}
 						}
 					}
 				}
@@ -207,7 +261,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		let vars = $.extend({
-			v: '1.0',
+			v: '1.1',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -217,12 +271,14 @@ define( [
 			dimension: layout.qHyperCube.qDimensionInfo[0].title,
 			measure1: layout.qHyperCube.qMeasureInfo[0].qFallbackTitle,
 			measure2: (layout.qHyperCube.qMeasureInfo[1]) ? layout.qHyperCube.qMeasureInfo[1].qFallbackTitle : null,
+			measure3: (layout.qHyperCube.qMeasureInfo[2]) ? layout.qHyperCube.qMeasureInfo[2].qFallbackTitle : null,
 			data: [],
 			this: this
 		}, layout.vars);	
 		vars.bar.total = layout.qHyperCube.qDataPages[0].qMatrix.length;
 		vars.bar.width = parseInt(vars.bar.width)
 		vars.dot.radius = parseInt(vars.dot.radius)
+		vars.dot2.radius = (vars.dot2) ? parseInt(vars.dot2.radius) : null;
 		vars.bar.padding = 5
 		
 		if (vars.bar.width) {
@@ -248,10 +304,20 @@ define( [
 				stroke: ${vars.line.color};
 				stroke-width: ${vars.line.width}px;
 			}
+			#${vars.id}_inner .line2 {
+				fill: none;
+				stroke: ${vars.line2.color};
+				stroke-width: ${vars.line2.width}px;
+			}
 			#${vars.id}_inner .dot {
 				fill: ${vars.dot.color};
 				stroke: ${vars.dot.strokeColor};
 				stroke-width: ${vars.dot.width}px;
+			}
+			#${vars.id}_inner .dot2 {
+				fill: ${vars.dot2.color};
+				stroke: ${vars.dot2.strokeColor};
+				stroke-width: ${vars.dot2.width}px;
 			}
 			#${vars.id}_inner .hover {
 				fill: ${vars.line.color};
@@ -299,6 +365,9 @@ define( [
 			#${vars.id}_inner .legend .column .box.measure2 {
 				background-color: ${vars.line.color};
 			}
+			#${vars.id}_inner .legend .column .box.measure3 {
+				background-color: ${vars.line2.color};
+			}
 
 		`;
 
@@ -321,7 +390,9 @@ define( [
 				"measure": d[1].qText,
 				"measureNum": d[1].qNum,
 				"measure2": (d[2]) ? d[2].qText : null,
-				"measureNum2": (d[2]) ? d[2].qNum : null
+				"measureNum2": (d[2]) ? d[2].qNum : null,
+				"measure3": (d[3]) ? d[3].qText : null,
+				"measureNum3": (d[3]) ? d[3].qNum : null
 			}
 		});
 
@@ -367,16 +438,20 @@ define( [
 		y.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
 
 		if (vars.legend) {
+			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1}</div>`;
+			if (vars.measure2) {
+				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2}</div>`;
+			}
+			if (vars.measure3) {
+				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3}</div>`;
+			}
 			svg.append("foreignObject")
 				.attr('width', 500)
 				.attr('height', 50)
 				.attr("y", `${height+vars.margin.bottom-15}`)
 			.append("xhtml:div")
 				.attr("class", "legend")
-				.html(`
-					<div class="column"><div class="box measure1"></div>${vars.measure1}</div>
-					<div class="column"><div class="box measure2"></div>${vars.measure2}</div>
-				`);
+				.html(displayLegend);
 		}
 
 		svg.append("g")
@@ -430,6 +505,31 @@ define( [
 					.attr("transform", `translate(${vars.margin.left},0)`)
 		}
 
+		// Create the Line Chart only if there is a 2nd measure
+		if (vars.measure3) {
+			var y3 = d3.scale.linear()
+				.range([height, 0])
+				.domain([0, d3.max(vars.data, function(d) { return d.measureNum3; })]);
+			var line2 = d3.svg.line()
+				.x(function(d) { return x(d.dimension); })
+				.y(function(d) { return y3(d.measureNum3); })
+			// Create the line
+			svg.append("g").attr("id", "line2")
+				.append("path")
+				.datum(vars.data)
+					.attr("class", "line2")
+					.attr("transform", `translate(${vars.margin.left},0)`)
+					.attr("d", line2)
+			// Add the dots
+			svg.selectAll("dots")
+				.data(vars.data)
+				.enter().append("circle")
+					.attr("class", "dot2")
+					.attr("r", vars.dot.radius)
+					.attr("cx", function(d) { return x(d.dimension); })
+					.attr("cy", function(d) { return y3(d.measureNum3); })
+					.attr("transform", `translate(${vars.margin.left},0)`)
+		}
 		function wrap (text, width) {
 			text.each(function() {
 				var breakChars = ['/', '&', '-'],

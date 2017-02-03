@@ -12,7 +12,7 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 
 #### Dimensions and Measures
 - Set 1 dimension for the x Axis
-- Set 1 Measure for an additional Line Chart
+- Set up to 2 Measures for up to 2 additional Line Charts
 
 #### General Settings
 - Font Size
@@ -27,7 +27,7 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 - Bar Border Color
 - Bar Border Width
 
-#### Line Chart Settings
+#### Line Chart Settings (1st and 2nd Line)
 - Line Color
 - Line Width
 - Dot Color
@@ -37,9 +37,10 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 
 ![SenseUI - Combo Chart](/preview.png?raw=true "SenseUI - Combo Chart")
 
+![SenseUI - Combo Chart](/preview2.png?raw=true "SenseUI - Combo Chart")
+
 #### Coming up
 - Tooltips
-- Multiple lines for more than one measure
 - Multiple Selections
 
 [Download zip file](https://github.com/yianni-ververis/SenseUI-ComboChart/archive/master.zip)
