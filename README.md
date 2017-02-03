@@ -5,7 +5,7 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 
 ## Installation
 - [Download zip file](https://github.com/yianni-ververis/SenseUI-ComboChart/archive/master.zip)
-- Desktop - Unzip at the extension folder (C:\Users\<user>\Documents\Qlik\Sense\Extensions\SenseUIBarChart) 
+- Desktop - Unzip at the extension folder (C:\Users\<user>\Documents\Qlik\Sense\Extensions\SenseUIComboChart) 
 - Server - Upload the zip file
 
 ## Usage
