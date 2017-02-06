@@ -264,7 +264,7 @@ define( [
 	me.app = qlik.currApp(this);
 
 	me.paint = function($element,layout) {
-		let vars = $.extend({
+		var vars = $.extend({
 			v: '1.2',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
@@ -412,7 +412,7 @@ define( [
 		}
 
 		var x = d3.scale.ordinal()
-			.rangeRoundBands([0, width], .1, .3);
+			.rangeRoundBands([0, width], .1, 0.3);
 
 		var y = d3.scale.linear()
 			.range([height, 0]);
@@ -453,6 +453,7 @@ define( [
 			.data(vars.data)
 			.enter().append("rect")
 			.attr("class", "bar")
+			// .attr("transform", `translate(${(vars.margin.inner)},0)`)
 			.attr("x", function(d) { return x(d.dimension); })
 			.attr("width", (vars.bar.width) ? vars.bar.width : x.rangeBand())
 			.attr("y", function(d) { return y(d.measureNum); })
@@ -483,7 +484,7 @@ define( [
 				.append("path")
 				.datum(vars.data)
 					.attr("class", "line")
-					.attr("transform", `translate(${vars.margin.left},0)`)
+					.attr("transform", `translate(${x.rangeBand()/2},0)`)
 					.attr("d", line)
 			// Add the dots
 			svg.selectAll("dots")
@@ -493,7 +494,7 @@ define( [
 					.attr("r", vars.dot.radius)
 					.attr("cx", function(d) { return x(d.dimension); })
 					.attr("cy", function(d) { return y2(d.measureNum2); })
-					.attr("transform", `translate(${vars.margin.left},0)`)
+					.attr("transform", `translate(${x.rangeBand()/2},0)`)
 		}
 
 		// Create the Line Chart only if there is a 2nd measure
@@ -509,7 +510,7 @@ define( [
 				.append("path")
 				.datum(vars.data)
 					.attr("class", "line2")
-					.attr("transform", `translate(${vars.margin.left},0)`)
+					.attr("transform", `translate(${x.rangeBand()/2},0)`)
 					.attr("d", line2)
 			// Add the dots
 			svg.selectAll("dots")
@@ -519,7 +520,7 @@ define( [
 					.attr("r", vars.dot.radius)
 					.attr("cx", function(d) { return x(d.dimension); })
 					.attr("cy", function(d) { return y3(d.measureNum3); })
-					.attr("transform", `translate(${vars.margin.left},0)`)
+					.attr("transform", `translate(${x.rangeBand()/2},0)`)
 		}
 
 		// TOOLTIPS
