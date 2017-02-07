@@ -99,6 +99,13 @@ define( [
 									}],
 									defaultValue: true
 								},
+								mashupDiv: {
+									type: "string",
+									expression: "none",
+									label: "What is the mashup div id to calculate correct positioning",
+									defaultValue: "main",
+									ref: "vars.tooltip.divid"
+								},
 							},
 						},
 						customBar: {
