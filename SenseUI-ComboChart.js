@@ -1,5 +1,5 @@
 /**
- * @name SenseUI-BiPartite
+ * @name SenseUI-ComboChart
  * @author yianni.ververis@qlik.com
  * @requires string: 1 Dimension and at least 1 Measure
  * @param {integer} vars.font.size: 
@@ -415,11 +415,15 @@ define( [
 			height = vars.height - margin.top - margin.bottom;
 		
 		if (vars.bar.width) {
-			width = (vars.bar.width + vars.bar.padding) * vars.bar.total + vars.margin.left + vars.margin.right
+			var tempWidth = (vars.bar.width + vars.bar.padding) * vars.bar.total + vars.margin.left + vars.margin.right;
+			if (tempWidth > width) {
+				width = tempWidth;
+			}
 		}
 
 		var x = d3.scale.ordinal()
-			.rangeRoundBands([0, width], .1, 0.3);
+			.rangeRoundBands([0, width], .1);
+			// .rangeRoundBands([0, width], .1, 0.3);
 
 		var y = d3.scale.linear()
 			.range([height, 0]);
@@ -460,8 +464,14 @@ define( [
 			.data(vars.data)
 			.enter().append("rect")
 			.attr("class", "bar")
-			// .attr("transform", `translate(${(vars.margin.inner)},0)`)
-			.attr("x", function(d) { return x(d.dimension); })
+			// .attr("x", function(d) { return x(d.dimension); })
+			.attr("x", function(d) { 
+				if (vars.bar.width) {
+					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width))/2;
+				} else {
+					return x(d.dimension);
+				}
+			})
 			.attr("width", (vars.bar.width) ? vars.bar.width : x.rangeBand())
 			.attr("y", function(d) { return y(d.measureNum); })
 			.attr("height", function(d) { return height - y(d.measureNum); })			
@@ -477,7 +487,7 @@ define( [
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 				}
 			});
-
+				
 		// Create the Line Chart only if there is a 2nd measure
 		if (vars.measure2) {
 			var y2 = d3.scale.linear()
