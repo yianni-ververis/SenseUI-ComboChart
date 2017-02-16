@@ -8,6 +8,8 @@
  * @param {boolean} vars.enableSelections:
  * @description
  * A simple Combo Chart
+ * @version 1.4: Add text on top of the bars
+ * @version 1.3: Distribute Bars evenly
  * @version 1.2: Added Tooltips
  * @version 1.1: Added 2nd line
  * @version 1.0: Initial Setup
@@ -272,7 +274,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend({
-			v: '1.2',
+			v: '1.4',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -346,6 +348,7 @@ define( [
 			#${vars.id}_inner .title {
 				font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 			}
+			#${vars.id}_inner,
 			#${vars.id}_inner .legend,
 			#${vars.id}_inner .axis {
 				font: ${vars.font.size}px sans-serif;
@@ -382,7 +385,15 @@ define( [
 			#${vars.id}_inner .legend .column .box.measure3 {
 				background-color: ${vars.line2.color};
 			}
-
+			#${vars.id}_inner .grid .tick {
+				stroke: grey;
+				opacity: 0.2;
+			}
+			#${vars.id}_inner #grid line {
+				stroke: grey;
+				stroke-width: 0.5;
+				opacity: 0.5;
+			}
 		`;
 
 		// TEMPLATE
@@ -423,7 +434,6 @@ define( [
 
 		var x = d3.scale.ordinal()
 			.rangeRoundBands([0, width], .1);
-			// .rangeRoundBands([0, width], .1, 0.3);
 
 		var y = d3.scale.linear()
 			.range([height, 0]);
@@ -446,6 +456,9 @@ define( [
 		.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+		// Create Parent Group layering
+		svg.append("g").attr("id", "grid");
+
 		x.domain(vars.data.map(function(d) { return d.dimension; }));
 		y.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
 
@@ -459,12 +472,20 @@ define( [
 		svg.append("g")
 			.attr("class", "y axis")
 			.call(yAxis);
-			
+
+		// Add bottom horizontal line (x-axis)
+		svg.select("#grid")
+			.append("line")
+			.attr("x1", 0)
+			.attr("y1", height)
+			.attr("x2", width)
+			.attr("y2", height)
+
+		// Add the bars	
 		svg.selectAll(".bar")
 			.data(vars.data)
 			.enter().append("rect")
 			.attr("class", "bar")
-			// .attr("x", function(d) { return x(d.dimension); })
 			.attr("x", function(d) { 
 				if (vars.bar.width) {
 					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width))/2;
@@ -487,7 +508,24 @@ define( [
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 				}
 			});
-				
+		
+		// Add the text on top of the bars
+		svg.selectAll(".text")
+			.data(vars.data)
+			.enter().append("text")
+			.text(function(d) {
+				return roundNumber(d.measureNum);
+			})
+			.attr("x", function(d, i) { 
+				if (vars.bar.width) {
+					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
+				} else {
+					return x(d.dimension);
+				}
+			})
+			.attr("y", function(d) { return y(d.measureNum)-5; })
+			.attr("text-anchor", 'middle')
+
 		// Create the Line Chart only if there is a 2nd measure
 		if (vars.measure2) {
 			var y2 = d3.scale.linear()
@@ -545,17 +583,19 @@ define( [
 			.attr('class', vars.id + ' d3-tip')
 			.offset([-10, 0])
 			.html(function(d,i) {
-				var displayMeasure1 = roundNumber(d.measure);
+				console.log(d.measure)
+				var displayMeasure1 = roundNumber(d.measureNum);
+				console.log(displayMeasure1)
 				var html = `
 					<div class="row dimension">${d.dimension}</div>
 					<div class="row measure"><div class="box measure1"></div>${vars.measure1}: ${displayMeasure1}</div>
 				`;
 				if (vars.measure2) {
-					var displayMeasure2 = roundNumber(d.measure2);
+					var displayMeasure2 = roundNumber(d.measureNum2);
 					html += `<div class="row measure"><div class="box measure2"></div>${vars.measure2}: ${displayMeasure2}</div>`;
 				}
 				if (vars.measure3) {
-					var displayMeasure3 = roundNumber(d.measure3);
+					var displayMeasure3 = roundNumber(d.measureNum3);
 					html += `<div class="row measure"><div class="box measure3"></div>${vars.measure3}: ${displayMeasure3}</div>`;
 				}
 				return html;
