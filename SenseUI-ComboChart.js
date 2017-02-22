@@ -317,7 +317,7 @@ define( [
 	me.app = qlik.currApp(this);
 
 	me.paint = function($element,layout) {
-		var vars = $.extend({
+		var vars = $.extend(true,{
 			v: '1.4',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
@@ -326,9 +326,15 @@ define( [
 			height: $element.height(),
 			margin: {top: 20, right: 20, bottom: 40, left: 40},
 			dimension: layout.qHyperCube.qDimensionInfo[0].title,
-			measure1: layout.qHyperCube.qMeasureInfo[0].qFallbackTitle,
-			measure2: (layout.qHyperCube.qMeasureInfo[1]) ? layout.qHyperCube.qMeasureInfo[1].qFallbackTitle : null,
-			measure3: (layout.qHyperCube.qMeasureInfo[2]) ? layout.qHyperCube.qMeasureInfo[2].qFallbackTitle : null,
+			measure1: {
+				label: layout.qHyperCube.qMeasureInfo[0].qFallbackTitle,
+			},
+			measure2: {
+				label: (layout.qHyperCube.qMeasureInfo[1]) ? layout.qHyperCube.qMeasureInfo[1].qFallbackTitle : null,
+			},
+			measure3: {
+				label: (layout.qHyperCube.qMeasureInfo[2]) ? layout.qHyperCube.qMeasureInfo[2].qFallbackTitle : null,
+			},
 			data: [],
 			this: this
 		}, layout.vars);	
@@ -337,7 +343,7 @@ define( [
 		vars.dot.radius = parseInt(vars.dot.radius)
 		vars.dot2.radius = (vars.dot2) ? parseInt(vars.dot2.radius) : null;
 		vars.bar.padding = 5
-		
+console.log(vars)		
 		if (vars.bar.width) {
 			vars.contentWidth = (vars.bar.width + vars.bar.padding) * vars.bar.total + vars.margin.left + vars.margin.right
 			vars.margin.bottom += 20;
@@ -561,13 +567,18 @@ define( [
 				return roundNumber(d.measureNum);
 			})
 			.attr("x", function(d, i) { 
+				// if (vars.bar.width) {
+				// 	return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
+				// } else {
+				// 	console.log(d)
 					return x(d.dimension) + x.rangeBand()/2;
+				// }
 			})
 			.attr("y", function(d) { return y(d.measureNum)-5; })
 			.attr("text-anchor", 'middle')
 
 		// Create the Line Chart only if there is a 2nd measure
-		if (vars.measure2) {
+		if (vars.measure2.label) {
 			var y2 = d3.scale.linear()
 				.range([height, 0])
 				.domain([0, d3.max(vars.data, function(d) { return d.measureNum2; })]);
@@ -593,7 +604,7 @@ define( [
 		}
 
 		// Create the Line Chart only if there is a 2nd measure
-		if (vars.measure3) {
+		if (vars.measure3.label) {
 			var y3 = d3.scale.linear()
 				.range([height, 0])
 				.domain([0, d3.max(vars.data, function(d) { return d.measureNum3; })]);
@@ -643,12 +654,12 @@ define( [
 
 		// LEGEND
 		if (vars.legend) {
-			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1}</div>`;
-			if (vars.measure2) {
-				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2}</div>`;
+			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1.label}</div>`;
+			if (vars.measure2.label) {
+				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2.label}</div>`;
 			}
-			if (vars.measure3) {
-				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3}</div>`;
+			if (vars.measure3.label) {
+				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3.label}</div>`;
 			}
 			svg.append("foreignObject")
 				.attr('width', 500)
