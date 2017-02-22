@@ -112,7 +112,7 @@ define( [
 						},
 						customBar: {
 							type: "items",
-							label: "Bar Chart",
+							label: "Measure 1 - Bar Chart",
 							items: {
 								barColor: {
 									type: "string",
@@ -153,18 +153,19 @@ define( [
 						},
 						customLine1: {
 							type: "items",
-							label: "Measure 1",
+							label: "Measure 2",
 							show : function(data) {
 								if (data.qHyperCubeDef.qMeasures.length>1) {
 									return true;
 								}
 							},
+							// vars.measure2.type: 1 for bar, 0 for Line
 							items: {
-								measure1type: {
+								measure2type: {
 									type: "boolean",
 									component: "switch",
-									label: "Bar / Line",
-									ref: "vars.measure1.type",
+									label: "Line / Bar",
+									ref: "vars.measure2.type",
 									options: [{
 										value: true,
 										label: "Bar"
@@ -181,7 +182,7 @@ define( [
 									defaultValue: "#ec5e08",
 									ref: "vars.line.color",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -193,7 +194,7 @@ define( [
 									defaultValue: "1",
 									ref: "vars.line.width",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -205,7 +206,7 @@ define( [
 									defaultValue: "#ec5e08",
 									ref: "vars.dot.color",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -217,7 +218,7 @@ define( [
 									defaultValue: "#ec5e08",
 									ref: "vars.dot.strokeColor",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -229,7 +230,7 @@ define( [
 									defaultValue: "1",
 									ref: "vars.dot.strokeWidth",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -241,7 +242,7 @@ define( [
 									defaultValue: "3",
 									ref: "vars.dot.radius",
 									show : function(data) {
-										if (!data.vars.measure1.type) {
+										if (!data.vars.measure2.type) {
 											return true;
 										}
 									}
@@ -351,6 +352,9 @@ console.log(vars)
 		if (vars.legend) {
 			vars.margin.bottom += 20;
 		}
+		vars.bar.count = 1; // How many bars do we have to distributed the grouped bars evently
+		vars.bar.count += (vars.measure2.type) ? 1 : 0;
+		vars.bar.count += (vars.measure3.type) ? 1 : 0;
 		// CSS
 		vars.css = `
 			#${vars.id}_inner {
@@ -394,6 +398,11 @@ console.log(vars)
 			#${vars.id}_inner .bar:hover {
 				fill: ${vars.bar.hover};
 				cursor: pointer;
+			}
+			#${vars.id}_inner .bar2 {
+				fill: #CCCCCC;
+				stroke: #CCCCCC;
+				stroke-width: 1px;
 			}
 			#${vars.id}_inner .title {
 				font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -510,7 +519,13 @@ console.log(vars)
 		svg.append("g").attr("id", "grid");
 
 		x.domain(vars.data.map(function(d) { return d.dimension; }));
-		y.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
+		y.domain([0, d3.max(vars.data, function(d) { 
+			var num = d.measureNum;
+			num += (d.measureNum2) ? d.measureNum2 : 0;
+			num += (d.measureNum3) ? d.measureNum3 : 0;
+			
+			return num; 
+		})]);
 
 		svg.append("g")
 			.attr("class", "x axis")
@@ -538,12 +553,12 @@ console.log(vars)
 			.attr("class", "bar")
 			.attr("x", function(d) { 
 				if (vars.bar.width) {
-					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width))/2;
+					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
 				} else {
 					return x(d.dimension);
 				}
 			})
-			.attr("width", (vars.bar.width) ? vars.bar.width : x.rangeBand())
+			.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 			.attr("y", function(d) { return y(d.measureNum); })
 			.attr("height", function(d) { return height - y(d.measureNum); })			
 			.on('mouseover', function(d,i){
@@ -571,7 +586,7 @@ console.log(vars)
 				// 	return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
 				// } else {
 				// 	console.log(d)
-					return x(d.dimension) + x.rangeBand()/2;
+					return x(d.dimension) + (x.rangeBand()/vars.bar.count)/vars.bar.count;
 				// }
 			})
 			.attr("y", function(d) { return y(d.measureNum)-5; })
@@ -579,28 +594,70 @@ console.log(vars)
 
 		// Create the Line Chart only if there is a 2nd measure
 		if (vars.measure2.label) {
-			var y2 = d3.scale.linear()
-				.range([height, 0])
-				.domain([0, d3.max(vars.data, function(d) { return d.measureNum2; })]);
-			var line = d3.svg.line()
-				.x(function(d) { return x(d.dimension); })
-				.y(function(d) { return y2(d.measureNum2); })
-			// Create the line
-			svg.append("g").attr("id", "line")
-				.append("path")
-				.datum(vars.data)
-					.attr("class", "line")
-					.attr("transform", `translate(${x.rangeBand()/2},0)`)
-					.attr("d", line)
-			// Add the dots
-			svg.selectAll("dots")
-				.data(vars.data)
-				.enter().append("circle")
-					.attr("class", "dot")
-					.attr("r", vars.dot.radius)
-					.attr("cx", function(d) { return x(d.dimension); })
-					.attr("cy", function(d) { return y2(d.measureNum2); })
-					.attr("transform", `translate(${x.rangeBand()/2},0)`)
+			if (!vars.measure2.type) { // if it is a line
+				var y2 = d3.scale.linear()
+					.range([height, 0])
+					.domain([0, d3.max(vars.data, function(d) { return d.measureNum2; })]);
+				var line = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y2(d.measureNum2); })
+				// Create the line
+				svg.append("g").attr("id", "line")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line)
+				// Add the dots
+				svg.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot")
+						.attr("r", vars.dot.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y2(d.measureNum2); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+			} else { // If it is a bar
+				svg.selectAll(".bar2")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar2")
+					.attr("x", function(d) { 
+						if (vars.bar.width) {
+							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
+						} else {
+							return x(d.dimension)+(x.rangeBand()/vars.bar.count);
+						}
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum2); })
+					.attr("height", function(d) { return height - y(d.measureNum2); })			
+					.on('mouseover', function(d,i){
+						tip.show(d, i); 
+						setTimeout(function(){tip.hide();}, 10000);
+					})
+					.on('mouseleave', function(d,i){
+						tip.hide();
+					})
+					.on('click', function(d,i) {
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});
+
+					// Add the text on the bars
+					svg.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum2);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
+						})
+						.attr("y", function(d) { return y(d.measureNum2)-5; })
+						.attr("text-anchor", 'middle')
+			}
 		}
 
 		// Create the Line Chart only if there is a 2nd measure
@@ -638,15 +695,15 @@ console.log(vars)
 				console.log(displayMeasure1)
 				var html = `
 					<div class="row dimension">${d.dimension}</div>
-					<div class="row measure"><div class="box measure1"></div>${vars.measure1}: ${displayMeasure1}</div>
+					<div class="row measure"><div class="box measure1"></div>${vars.measure1.label}: ${displayMeasure1}</div>
 				`;
-				if (vars.measure2) {
+				if (vars.measure2.label) {
 					var displayMeasure2 = roundNumber(d.measureNum2);
-					html += `<div class="row measure"><div class="box measure2"></div>${vars.measure2}: ${displayMeasure2}</div>`;
+					html += `<div class="row measure"><div class="box measure2"></div>${vars.measure2.label}: ${displayMeasure2}</div>`;
 				}
-				if (vars.measure3) {
+				if (vars.measure3.label) {
 					var displayMeasure3 = roundNumber(d.measureNum3);
-					html += `<div class="row measure"><div class="box measure3"></div>${vars.measure3}: ${displayMeasure3}</div>`;
+					html += `<div class="row measure"><div class="box measure3"></div>${vars.measure3.label}: ${displayMeasure3}</div>`;
 				}
 				return html;
 			})
