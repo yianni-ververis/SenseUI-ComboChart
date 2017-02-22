@@ -153,54 +153,98 @@ define( [
 						},
 						customLine1: {
 							type: "items",
-							label: "Line Chart 1",
+							label: "Measure 1",
 							show : function(data) {
 								if (data.qHyperCubeDef.qMeasures.length>1) {
 									return true;
 								}
 							},
 							items: {
+								measure1type: {
+									type: "boolean",
+									component: "switch",
+									label: "Bar / Line",
+									ref: "vars.measure1.type",
+									options: [{
+										value: true,
+										label: "Bar"
+									}, {
+										value: false,
+										label: "line"
+									}],
+									defaultValue: false
+								},
 								lineColor: {
 									type: "string",
 									expression: "none",
 									label: "Line Color",
 									defaultValue: "#ec5e08",
-									ref: "vars.line.color"
+									ref: "vars.line.color",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 								lineWidth: {
 									type: "string",
 									expression: "none",
 									label: "Line Width",
-									defaultValue: "3",
-									ref: "vars.line.width"
+									defaultValue: "1",
+									ref: "vars.line.width",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 								dotColor: {
 									type: "string",
 									expression: "none",
 									label: "Dot Color",
 									defaultValue: "#ec5e08",
-									ref: "vars.dot.color"
+									ref: "vars.dot.color",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 								dotStrokeColor: {
 									type: "string",
 									expression: "none",
 									label: "Dot Stroke Color",
 									defaultValue: "#ec5e08",
-									ref: "vars.dot.strokeColor"
+									ref: "vars.dot.strokeColor",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 								dotStrokeWidth: {
 									type: "string",
 									expression: "none",
 									label: "Dot Stroke Width",
-									defaultValue: "3",
-									ref: "vars.dot.strokeWidth"
+									defaultValue: "1",
+									ref: "vars.dot.strokeWidth",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 								dotRadius: {
 									type: "string",
 									expression: "none",
 									label: "Dot Radius",
-									defaultValue: "5",
-									ref: "vars.dot.radius"
+									defaultValue: "3",
+									ref: "vars.dot.radius",
+									show : function(data) {
+										if (!data.vars.measure1.type) {
+											return true;
+										}
+									}
 								},
 							}
 						},
@@ -445,7 +489,7 @@ define( [
 		var yAxis = d3.svg.axis()
 			.scale(y)
 			.orient("left")
-			.ticks(8, "")
+			.ticks(3, "")
 			.tickFormat(function(d,i){
 				return roundNumber(d); 
 			})
@@ -517,11 +561,7 @@ define( [
 				return roundNumber(d.measureNum);
 			})
 			.attr("x", function(d, i) { 
-				if (vars.bar.width) {
-					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
-				} else {
-					return x(d.dimension);
-				}
+					return x(d.dimension) + x.rangeBand()/2;
 			})
 			.attr("y", function(d) { return y(d.measureNum)-5; })
 			.attr("text-anchor", 'middle')
@@ -583,7 +623,6 @@ define( [
 			.attr('class', vars.id + ' d3-tip')
 			.offset([-10, 0])
 			.html(function(d,i) {
-				console.log(d.measure)
 				var displayMeasure1 = roundNumber(d.measureNum);
 				console.log(displayMeasure1)
 				var html = `
@@ -614,7 +653,7 @@ define( [
 			svg.append("foreignObject")
 				.attr('width', 500)
 				.attr('height', 50)
-				.attr("y", `${height+vars.margin.bottom-15}`)
+				.attr("y", `${height+40}`)
 			.append("xhtml:div")
 				.attr("class", "legend")
 				.html(displayLegend);
