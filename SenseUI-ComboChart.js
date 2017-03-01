@@ -19,294 +19,14 @@ define( [
 	"qlik",
 	"jquery",
 	'css!./SenseUI-ComboChart.css',
+	'./SenseUI-ComboChart-options',
 	"./d3.v3.min",
-	'./d3-tip'
+	'./d3-tip',
+	'./SenseUI-ComboChart-css'
 ],
-(qlik, $, css, d3) => {
+(qlik, $, css, options, d3) => {
 	// Define properties
-	var me = {
-		initialProperties: {
-			qHyperCubeDef: {
-				qDimensions: [],
-				qMeasures: [],
-				qInitialDataFetch: [{
-					qWidth: 4,
-					qHeight: 1000
-				}]
-			}
-		},
-		definition: {
-			type: "items",
-			component: "accordion",
-			items: {
-				dimensions: {
-					uses: "dimensions",
-					min: 1,
-					max: 1
-				},
-				measures: {
-					uses: "measures",
-					min: 1,
-					max: 3
-				},
-				sorting: {
-					uses: "sorting"
-				},
-				settings : {
-					uses : "settings",
-					items: {
-						general: {
-							type: "items",
-							label: "General",
-							items: {
-								fontSize: {
-									type: "integer",
-									expression: "none",
-									label: "Text Size",
-									defaultValue: "10",
-									ref: "vars.font.size"
-								},
-								fontColor: {
-									type: "string",
-									expression: "none",
-									label: "Font Color",
-									defaultValue: "#000000",
-									ref: "vars.font.color"
-								},
-								displayLegend: {
-									type: "boolean",
-									component: "switch",
-									label: "Display Legend",
-									ref: "vars.legend",
-									options: [{
-										value: true,
-										label: "On"
-									}, {
-										value: false,
-										label: "Off"
-									}],
-									defaultValue: true
-								},
-								enableSelections: {
-									type: "boolean",
-									component: "switch",
-									label: "Enable Selections",
-									ref: "vars.enableSelections",
-									options: [{
-										value: true,
-										label: "On"
-									}, {
-										value: false,
-										label: "Off"
-									}],
-									defaultValue: true
-								},
-								mashupDiv: {
-									type: "string",
-									expression: "none",
-									label: "What is the mashup div id to calculate correct positioning",
-									defaultValue: "main",
-									ref: "vars.tooltip.divid"
-								},
-							},
-						},
-						customBar: {
-							type: "items",
-							label: "Measure 1 - Bar Chart",
-							items: {
-								barColor: {
-									type: "string",
-									expression: "none",
-									label: "Bar Color",
-									defaultValue: "#4682B4",
-									ref: "vars.bar.color"
-								},
-								barColorHover: {
-									type: "string",
-									expression: "none",
-									label: "Bar Hover Color",
-									defaultValue: "#77B62A",
-									ref: "vars.bar.hover"
-								},
-								barWidth: {
-									type: "integer",
-									expression: "none",
-									label: "Bar Width (0 for auto scaling)",
-									defaultValue: "0",
-									ref: "vars.bar.width"
-								},
-								barBorderColor: {
-									type: "string",
-									expression: "none",
-									label: "Bar Border Color",
-									defaultValue: "#4682B4",
-									ref: "vars.bar.borderColor"
-								},
-								barBorderWidth: {
-									type: "integer",
-									expression: "none",
-									label: "Bar Border Width",
-									defaultValue: "1",
-									ref: "vars.bar.borderWidth"
-								}
-							},
-						},
-						customLine1: {
-							type: "items",
-							label: "Measure 2",
-							show : function(data) {
-								if (data.qHyperCubeDef.qMeasures.length>1) {
-									return true;
-								}
-							},
-							// vars.measure2.type: 1 for bar, 0 for Line
-							items: {
-								measure2type: {
-									type: "boolean",
-									component: "switch",
-									label: "Line / Bar",
-									ref: "vars.measure2.type",
-									options: [{
-										value: true,
-										label: "Bar"
-									}, {
-										value: false,
-										label: "line"
-									}],
-									defaultValue: false
-								},
-								lineColor: {
-									type: "string",
-									expression: "none",
-									label: "Line Color",
-									defaultValue: "#ec5e08",
-									ref: "vars.line.color",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-								lineWidth: {
-									type: "string",
-									expression: "none",
-									label: "Line Width",
-									defaultValue: "1",
-									ref: "vars.line.width",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-								dotColor: {
-									type: "string",
-									expression: "none",
-									label: "Dot Color",
-									defaultValue: "#ec5e08",
-									ref: "vars.dot.color",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-								dotStrokeColor: {
-									type: "string",
-									expression: "none",
-									label: "Dot Stroke Color",
-									defaultValue: "#ec5e08",
-									ref: "vars.dot.strokeColor",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-								dotStrokeWidth: {
-									type: "string",
-									expression: "none",
-									label: "Dot Stroke Width",
-									defaultValue: "1",
-									ref: "vars.dot.strokeWidth",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-								dotRadius: {
-									type: "string",
-									expression: "none",
-									label: "Dot Radius",
-									defaultValue: "3",
-									ref: "vars.dot.radius",
-									show : function(data) {
-										if (!data.vars.measure2.type) {
-											return true;
-										}
-									}
-								},
-							}
-						},
-						customLine2: {
-							type: "items",
-							label: "Line Chart 2",
-							show : function(data) {
-								if (data.qHyperCubeDef.qMeasures.length>2) {
-									return true;
-								}
-							},
-							items: {
-								lineColor2: {
-									type: "string",
-									expression: "none",
-									label: "Line Color",
-									defaultValue: "#1F78B4",
-									ref: "vars.line2.color"
-								},
-								lineWidth2: {
-									type: "string",
-									expression: "none",
-									label: "Line Width",
-									defaultValue: "3",
-									ref: "vars.line2.width"
-								},
-								dotColor2: {
-									type: "string",
-									expression: "none",
-									label: "Dot Color",
-									defaultValue: "#1F78B4",
-									ref: "vars.dot2.color"
-								},
-								dotStrokeColor2: {
-									type: "string",
-									expression: "none",
-									label: "Dot Stroke Color",
-									defaultValue: "#ec5e08",
-									ref: "vars.dot2.strokeColor"
-								},
-								dotStrokeWidth2: {
-									type: "string",
-									expression: "none",
-									label: "Dot Stroke Width",
-									defaultValue: "3",
-									ref: "vars.dot2.strokeWidth"
-								},
-								dotRadius2: {
-									type: "string",
-									expression: "none",
-									label: "Dot Radius",
-									defaultValue: "5",
-									ref: "vars.dot2.radius"
-								},
-							}
-						}
-					}
-				}
-			}
-		}
-	};
+	var me = options;
 
 	me.support = {
 		snapshot: true,
@@ -319,7 +39,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.4',
+			v: '1.5',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -336,6 +56,9 @@ define( [
 			measure3: {
 				label: (layout.qHyperCube.qMeasureInfo[2]) ? layout.qHyperCube.qMeasureInfo[2].qFallbackTitle : null,
 			},
+			measure4: {
+				label: (layout.qHyperCube.qMeasureInfo[3]) ? layout.qHyperCube.qMeasureInfo[3].qFallbackTitle : null,
+			},
 			data: [],
 			this: this
 		}, layout.vars);	
@@ -344,7 +67,7 @@ define( [
 		vars.dot.radius = parseInt(vars.dot.radius)
 		vars.dot2.radius = (vars.dot2) ? parseInt(vars.dot2.radius) : null;
 		vars.bar.padding = 5
-console.log(vars)		
+// console.log(vars)		
 		if (vars.bar.width) {
 			vars.contentWidth = (vars.bar.width + vars.bar.padding) * vars.bar.total + vars.margin.left + vars.margin.right
 			vars.margin.bottom += 20;
@@ -353,108 +76,13 @@ console.log(vars)
 			vars.margin.bottom += 20;
 		}
 		vars.bar.count = 1; // How many bars do we have to distributed the grouped bars evently
-		vars.bar.count += (vars.measure2.type) ? 1 : 0;
-		vars.bar.count += (vars.measure3.type) ? 1 : 0;
-		// CSS
-		vars.css = `
-			#${vars.id}_inner {
-				width: ${vars.width}px;
-				height: ${vars.height}px;
-				overflow-x: auto !important;
-				overflow-y: hidden !important;
-			}
-			#${vars.id}_inner .content {
-				width: ${vars.contentWidth}px;
-			}
-			#${vars.id}_inner .line {
-				fill: none;
-				stroke: ${vars.line.color};
-				stroke-width: ${vars.line.width}px;
-			}
-			#${vars.id}_inner .line2 {
-				fill: none;
-				stroke: ${vars.line2.color};
-				stroke-width: ${vars.line2.width}px;
-			}
-			#${vars.id}_inner .dot {
-				fill: ${vars.dot.color};
-				stroke: ${vars.dot.strokeColor};
-				stroke-width: ${vars.dot.width}px;
-			}
-			#${vars.id}_inner .dot2 {
-				fill: ${vars.dot2.color};
-				stroke: ${vars.dot2.strokeColor};
-				stroke-width: ${vars.dot2.width}px;
-			}
-			#${vars.id}_inner .hover {
-				fill: ${vars.line.color};
-				stroke: ${vars.line.color};
-			}
-			#${vars.id}_inner .bar {
-				fill: ${vars.bar.color};
-				stroke: ${vars.bar.borderColor};
-				stroke-width: ${vars.bar.borderWidth}px;
-			}
-			#${vars.id}_inner .bar:hover {
-				fill: ${vars.bar.hover};
-				cursor: pointer;
-			}
-			#${vars.id}_inner .bar2 {
-				fill: #CCCCCC;
-				stroke: #CCCCCC;
-				stroke-width: 1px;
-			}
-			#${vars.id}_inner .title {
-				font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
-			}
-			#${vars.id}_inner,
-			#${vars.id}_inner .legend,
-			#${vars.id}_inner .axis {
-				font: ${vars.font.size}px sans-serif;
-				color: ${vars.font.color};
-			}
-			#${vars.id}_inner .axis path,
-			#${vars.id}_inner .axis line {
-				fill: none;
-				stroke: #CCC;
-				shape-rendering: crispEdges;
-			}
-			#${vars.id}_inner .x.axis path {
-				display: none;
-			}
-			#${vars.id}_inner .legend .column {
-				display: inline-block;
-				padding-right: 10px;
-			}
-			#${vars.id}_inner .legend .column .box {
-				width: 10px;
-				height: 10px;
-				display: inline-block;
-				margin-right: 5px;
-			}
-			.d3-tip .box.measure1,
-			#${vars.id}_inner .legend .column .box.measure1 {
-				background-color: ${vars.bar.color};
-			}
-			.d3-tip .box.measure2,
-			#${vars.id}_inner .legend .column .box.measure2 {
-				background-color: ${vars.line.color};
-			}
-			.d3-tip .box.measure3,
-			#${vars.id}_inner .legend .column .box.measure3 {
-				background-color: ${vars.line2.color};
-			}
-			#${vars.id}_inner .grid .tick {
-				stroke: grey;
-				opacity: 0.2;
-			}
-			#${vars.id}_inner #grid line {
-				stroke: grey;
-				stroke-width: 0.5;
-				opacity: 0.5;
-			}
-		`;
+		vars.bar.count += (vars.measure2.type && vars.measure2.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure3.type && vars.measure3.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure4.type && vars.measure4.visible) ? 1 : 0;
+		vars.palette = ['#332288','#88CCEE','#DDCC77','#117733','#CC6677','#3399CC','#CC6666','#99CC66','#275378','#B35A01','#B974FD','#993300','#99CCCC','#669933','#898989','#EDA1A1','#C6E2A9','#D4B881','#137D77','#D7C2EC','#FF5500','#15DFDF','#93A77E','#CB5090','#BFBFBF'],
 
+		// CSS
+		vars.css = cssjs(vars)
 		// TEMPLATE
 		vars.template = `
 			<div id="${vars.id}_inner">
@@ -465,7 +93,7 @@ console.log(vars)
 		// Write Css and html
 		$("<style>").html(vars.css).appendTo("head")
 		$element.html(vars.template)
-
+// console.log(layout)
 		vars.barWidth = (vars.width-vars.margin.left-vars.margin.right-5)/vars.bar.total
 		vars.data = layout.qHyperCube.qDataPages[0].qMatrix.map(function(d) {
 			return {
@@ -476,7 +104,9 @@ console.log(vars)
 				"measure2": (d[2]) ? d[2].qText : null,
 				"measureNum2": (d[2]) ? d[2].qNum : null,
 				"measure3": (d[3]) ? d[3].qText : null,
-				"measureNum3": (d[3]) ? d[3].qNum : null
+				"measureNum3": (d[3]) ? d[3].qNum : null,
+				"measure4": (d[4]) ? d[4].qText : null,
+				"measureNum4": (d[4]) ? d[4].qNum : null
 			}
 		});
 
@@ -518,23 +148,51 @@ console.log(vars)
 		// Create Parent Group layering
 		svg.append("g").attr("id", "grid");
 
-		x.domain(vars.data.map(function(d) { return d.dimension; }));
-		y.domain([0, d3.max(vars.data, function(d) { 
-			var num = d.measureNum;
-			num += (d.measureNum2) ? d.measureNum2 : 0;
-			num += (d.measureNum3) ? d.measureNum3 : 0;
-			
-			return num; 
-		})]);
+		// Set the Y-Axis Max and Min
+		var yAxisMax = d3.max(vars.data, function(d) { 
+			return Math.max(
+				d.measureNum,
+				(d.measureNum2) ? d.measureNum2 : 0, 
+				(d.measureNum3) ? d.measureNum3 : 0,
+				(d.measureNum4) ? d.measureNum4 : 0
+			);
+		})
+		var  yAxisMin = d3.min(vars.data, function(d) { 
+			return Math.min(
+				d.measureNum,
+				(d.measureNum2) ? d.measureNum2 : 0, 
+				(d.measureNum3) ? d.measureNum3 : 0,
+				(d.measureNum4) ? d.measureNum4 : 0
+			);
+		})
+		if (vars.yaxis && vars.yaxis.max && vars.yaxis.max > yAxisMax) {
+			yAxisMax = vars.yaxis.max;
+		}
+		if (vars.yaxis && vars.yaxis.min && vars.yaxis.min < yAxisMin) {
+			yAxisMin = vars.yaxis.min;
+		}
 
-		svg.append("g")
+		x.domain(vars.data.map(function(d) { return d.dimension; }));
+		y.domain([yAxisMin, yAxisMax]);
+
+		// Set the layers
+		svg.append("g").attr("id", "grid");
+		svg.append("g").attr("id", "measure1");
+		svg.append("g").attr("id", "measure2");
+		svg.append("g").attr("id", "measure3");
+		svg.append("g").attr("id", "measure4");
+		svg.append("g").attr("id", "labels");
+
+		svg.select("#grid")
+			.append("g")
 			.attr("class", "x axis")
 			.attr("transform", "translate(0," + height + ")")
 			.call(xAxis)
 			.selectAll(".tick text")
 			.call(wrap, (vars.bar.width) ? vars.bar.width : x.rangeBand());
 
-		svg.append("g")
+		svg.select("#grid")
+			.append("g")
 			.attr("class", "y axis")
 			.call(yAxis);
 
@@ -546,11 +204,14 @@ console.log(vars)
 			.attr("x2", width)
 			.attr("y2", height)
 
-		// Add the bars	
-		svg.selectAll(".bar")
+		/* ***********
+		 * MEASURE 1
+		 * ***********/
+		svg.select("#measure1")
+			.selectAll(".bar")
 			.data(vars.data)
 			.enter().append("rect")
-			.attr("class", "bar")
+			.attr("class", "bar1")
 			.attr("x", function(d) { 
 				if (vars.bar.width) {
 					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
@@ -572,10 +233,10 @@ console.log(vars)
 				if (vars.enableSelections) {
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 				}
-			});
-		
+			});		
 		// Add the text on top of the bars
-		svg.selectAll(".text")
+		svg.select("#labels")
+			.selectAll(".text")
 			.data(vars.data)
 			.enter().append("text")
 			.text(function(d) {
@@ -586,14 +247,18 @@ console.log(vars)
 				// 	return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
 				// } else {
 				// 	console.log(d)
-					return x(d.dimension) + (x.rangeBand()/vars.bar.count)/vars.bar.count;
+					// return x(d.dimension) + (x.rangeBand()/vars.bar.count)/vars.bar.count;
+					return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-1)))/(vars.bar.count*2));
+					// return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-1))/(vars.bar.count*2)); 
 				// }
 			})
 			.attr("y", function(d) { return y(d.measureNum)-5; })
 			.attr("text-anchor", 'middle')
 
-		// Create the Line Chart only if there is a 2nd measure
-		if (vars.measure2.label) {
+		/* ***********
+		 * MEASURE 2
+		 * ***********/
+		if (vars.measure2.label && vars.measure2.visible) {
 			if (!vars.measure2.type) { // if it is a line
 				var y2 = d3.scale.linear()
 					.range([height, 0])
@@ -602,23 +267,26 @@ console.log(vars)
 					.x(function(d) { return x(d.dimension); })
 					.y(function(d) { return y2(d.measureNum2); })
 				// Create the line
-				svg.append("g").attr("id", "line")
+				svg.select("#measure2")
+					.append("g").attr("id", "line")
 					.append("path")
 					.datum(vars.data)
-						.attr("class", "line")
+						.attr("class", "line2")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 						.attr("d", line)
 				// Add the dots
-				svg.selectAll("dots")
+				svg.select("#measure2")
+					.selectAll("dots")
 					.data(vars.data)
 					.enter().append("circle")
-						.attr("class", "dot")
-						.attr("r", vars.dot.radius)
+						.attr("class", "dot2")
+						.attr("r", vars.measure2.radius)
 						.attr("cx", function(d) { return x(d.dimension); })
 						.attr("cy", function(d) { return y2(d.measureNum2); })
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 			} else { // If it is a bar
-				svg.selectAll(".bar2")
+				svg.select("#measure2")
+					.selectAll(".bar2")
 					.data(vars.data)
 					.enter().append("rect")
 					.attr("class", "bar2")
@@ -644,55 +312,232 @@ console.log(vars)
 							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 						}
 					});
-
-					// Add the text on the bars
-					svg.selectAll(".text")
-						.data(vars.data)
-						.enter().append("text")
-						.text(function(d) {
-							return roundNumber(d.measureNum2);
-						})
-						.attr("x", function(d, i) { 
-							return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
-						})
-						.attr("y", function(d) { return y(d.measureNum2)-5; })
-						.attr("text-anchor", 'middle')
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum2);
+					})
+					.attr("x", function(d, i) { 
+						return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-3)))/(vars.bar.count*2)); // Works for 3 bars but not for 2// Split the bars into 2 and set the text in the middle
+					})
+					.attr("y", function(d) { return y(d.measureNum2)-5; })
+					.attr("text-anchor", 'middle')
 			}
 		}
 
-		// Create the Line Chart only if there is a 2nd measure
-		if (vars.measure3.label) {
-			var y3 = d3.scale.linear()
-				.range([height, 0])
-				.domain([0, d3.max(vars.data, function(d) { return d.measureNum3; })]);
-			var line2 = d3.svg.line()
-				.x(function(d) { return x(d.dimension); })
-				.y(function(d) { return y3(d.measureNum3); })
-			// Create the line
-			svg.append("g").attr("id", "line2")
-				.append("path")
-				.datum(vars.data)
-					.attr("class", "line2")
-					.attr("transform", `translate(${x.rangeBand()/2},0)`)
-					.attr("d", line2)
-			// Add the dots
-			svg.selectAll("dots")
-				.data(vars.data)
-				.enter().append("circle")
-					.attr("class", "dot2")
-					.attr("r", vars.dot.radius)
-					.attr("cx", function(d) { return x(d.dimension); })
-					.attr("cy", function(d) { return y3(d.measureNum3); })
-					.attr("transform", `translate(${x.rangeBand()/2},0)`)
+		/* ***********
+		 * MEASURE 3
+		 * ***********/
+		if (vars.measure3.label && vars.measure3.visible) {
+			if (!vars.measure3.type) { // if it is a line
+				var y3 = d3.scale.linear()
+					.range([height, 0])
+					.domain([0, d3.max(vars.data, function(d) { return d.measureNum3; })]);
+				var line2 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y3(d.measureNum3); })
+				// Create the line
+				svg.select("#measure3")
+					.append("g").attr("id", "line2")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line3")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line2)
+				// Add the dots
+				svg.select("#measure3")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot3")
+						.attr("r", vars.measure3.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y3(d.measureNum3); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+			} else { // If it is a bar
+				svg.select("#measure3")
+					.selectAll(".bar3")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar3")
+					.attr("x", function(d) { 
+						if (vars.bar.width) {
+							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
+						} else {
+							// return x(d.dimension)+((x.rangeBand()/vars.bar.count)*2); //2 since this is the 3nd dimension// /vars.bar.count
+							return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-(vars.bar.count-1)))/(vars.bar.count*2)); 
+						}
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum3); })
+					.attr("height", function(d) { return height - y(d.measureNum3); })			
+					.on('mouseover', function(d,i){
+						tip.show(d, i); 
+						setTimeout(function(){tip.hide();}, 10000);
+					})
+					.on('mouseleave', function(d,i){
+						tip.hide();
+					})
+					.on('click', function(d,i) {
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum3);
+					})
+					.attr("x", function(d, i) { 
+						// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
+						return x(d.dimension) + ((x.rangeBand()*5)/6);
+					})
+					.attr("y", function(d) { return y(d.measureNum3)-5; })
+					.attr("text-anchor", 'middle')
+			}
 		}
+
+		/* ***********
+		 * MEASURE 4
+		 * ***********/
+		if (vars.measure4.label && vars.measure4.visible) {
+			if (!vars.measure4.type) { // if it is a line
+				// var y3 = d3.scale.linear()
+				// 	.range([height, 0])
+				// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum4; })]);
+				var line4 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y(d.measureNum4); })
+				// Create the line
+				svg.select("#measure4")
+					.append("g").attr("id", "line4")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line4")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line4)
+				// Add the dots
+				svg.select("#measure4")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot4")
+						.attr("r", vars.measure4.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y(d.measureNum4); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)		
+						.on('mouseover', function(d,i){
+							tip.show(d, i); 
+							setTimeout(function(){tip.hide();}, 10000);
+						})
+						.on('mouseleave', function(d,i){
+							tip.hide();
+						})
+						.on('click', function(d,i) {
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
+			} else { // If it is a bar
+				svg.select("#measure4")
+					.selectAll(".bar4")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar4")
+					.attr("x", function(d) { 
+						if (vars.bar.width) {
+							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
+						} else {
+							return x(d.dimension)+((x.rangeBand()/vars.bar.count)*3); //3 since this is the 4th dimension// /vars.bar.count
+						}
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum4); })
+					.attr("height", function(d) { return height - y(d.measureNum4); })			
+					.on('mouseover', function(d,i){
+						tip.show(d, i); 
+						setTimeout(function(){tip.hide();}, 10000);
+					})
+					.on('mouseleave', function(d,i){
+						tip.hide();
+					})
+					.on('click', function(d,i) {
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum4);
+					})
+					.attr("x", function(d, i) { 
+						// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
+						return x(d.dimension) + ((x.rangeBand()*7)/8);
+					})
+					.attr("y", function(d) { return y(d.measureNum3)-5; })
+					.attr("text-anchor", 'middle')
+			}
+		}
+
+		/* ***********
+		 * FOOTER EXPRESSION
+		 * ***********/
+		 if (vars.footerExpression) {
+			// vars.this.backendApi.applyPatches([
+			// 	{
+			// 		"qPath": "/layer1cube/qHyperCubeDef/qDimensions",
+			// 		"qOp": "add",
+			// 		"qValue": JSON.stringify([{qDef: {qFieldDefs: ""}}])
+			// 	},
+			// 	{
+			// 		"qPath": "/qHyperCubeDef/qMeasures",
+			// 		"qOp": "add",
+			// 		"qValue": JSON.stringify([{ 
+			// 			"qDef" : { 
+			// 				"qDef" : "1"//vars.footerExpression
+			// 			}, 
+			// 			"qSortBy": { 
+			// 				"qSortByState": 0, 
+			// 				"qSortByFrequency": 0, 
+			// 				"qSortByNumeric": 0, 
+			// 				"qSortByAscii": 0, 
+			// 				"qSortByLoadOrder": 1, 
+			// 				"qSortByExpression": 0, 
+			// 				"qExpression": { 
+			// 					qv: "" 
+			// 				} 
+			// 			} 
+			// 		}]) //+vars.footerExpression
+			// 	}
+			// ], false).then(function(data){
+			// 	console.log(data)
+			// });
+			// vars.this.backendApi.applyPatches([
+			// 	{
+			// 		"qPath": "/meta",
+			// 		"qOp": "add",
+			// 		"qValue": "{ \"data\": \"this is the data\"}"
+			// 	}
+			// ], false);
+		 }
 
 		// TOOLTIPS
 		var tip = d3.tip()
 			.attr('class', vars.id + ' d3-tip')
 			.offset([-10, 0])
+			.extensionData(vars.tooltip)
 			.html(function(d,i) {
 				var displayMeasure1 = roundNumber(d.measureNum);
-				console.log(displayMeasure1)
 				var html = `
 					<div class="row dimension">${d.dimension}</div>
 					<div class="row measure"><div class="box measure1"></div>${vars.measure1.label}: ${displayMeasure1}</div>
@@ -717,6 +562,9 @@ console.log(vars)
 			}
 			if (vars.measure3.label) {
 				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3.label}</div>`;
+			}
+			if (vars.measure4.label) {
+				displayLegend += `<div class="column"><div class="box measure4"></div>${vars.measure4.label}</div>`;
 			}
 			svg.append("foreignObject")
 				.attr('width', 500)
@@ -786,7 +634,23 @@ console.log(vars)
 	// me.template = '';
 
 	// The Angular Controller for binding
-	// me.controller = ["$scope", "$rootScope", "$element", function ( $scope, $rootScope, $element ) {}]
+	me.controller = ["$scope", "$rootScope", "$element", function ( $scope, $rootScope, $element ) {
+		// $scope.$watchCollection("layout.vars.footerExpression", function(data) {
+		// 	console.log(data)
+		// 	$scope.backendApi.applyPatches([
+		// 		{
+		// 			"qPath": "/meta",
+		// 			"qOp": "add",
+		// 			"qValue": `{ \"data\": \"${data}\"}`
+		// 		},
+		// 		{
+		// 			"qPath": "/qHyperCubeDef/qMeasures",
+		// 			"qOp": "add",
+		// 			"qValue": JSON.stringify([{qDef: {qDef: data}}])
+		// 		}
+		// 	], false);
+		// })
+	}]
 
 	return me
 } );
