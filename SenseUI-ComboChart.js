@@ -64,10 +64,7 @@ define( [
 		}, layout.vars);	
 		vars.bar.total = layout.qHyperCube.qDataPages[0].qMatrix.length;
 		vars.bar.width = parseInt(vars.bar.width)
-		vars.dot.radius = parseInt(vars.dot.radius)
-		vars.dot2.radius = (vars.dot2) ? parseInt(vars.dot2.radius) : null;
 		vars.bar.padding = 5
-// console.log(vars)		
 		if (vars.bar.width) {
 			vars.contentWidth = (vars.bar.width + vars.bar.padding) * vars.bar.total + vars.margin.left + vars.margin.right
 			vars.margin.bottom += 20;
@@ -93,7 +90,7 @@ define( [
 		// Write Css and html
 		$("<style>").html(vars.css).appendTo("head")
 		$element.html(vars.template)
-// console.log(layout)
+		
 		vars.barWidth = (vars.width-vars.margin.left-vars.margin.right-5)/vars.bar.total
 		vars.data = layout.qHyperCube.qDataPages[0].qMatrix.map(function(d) {
 			return {
