@@ -103,7 +103,7 @@ let cssjs = (vars) => {
 		}
 		.d3-tip .box.measure1,
 		#${vars.id}_inner .legend .column .box.measure1 {
-			background-color: ${vars.bar.color};
+			background-color: ${vars.measure1.color};
 		}
 		.d3-tip .box.measure2,
 		#${vars.id}_inner .legend .column .box.measure2 {

@@ -104,6 +104,20 @@ var options = {
 								defaultValue: "0",
 								ref: "vars.bar.width"
 							},
+							precision: {
+								type: "boolean",
+								component: "switch",
+								label: "Display decimals?",
+								ref: "vars.precision",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: false
+							},
 							mashupDiv: {
 								type: "string",
 								expression: "none",
@@ -121,7 +135,7 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Color",
-								defaultValue: "#332288",
+								defaultValue: "#4477AA",
 								ref: "vars.measure1.color"
 							},
 							measure1stroke: {

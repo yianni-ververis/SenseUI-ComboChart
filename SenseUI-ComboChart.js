@@ -611,12 +611,27 @@ define( [
 				}
 			});
 
+			// roundNumber = (num) => {
+			// 	num = Math.round(num);
+			// 	if (num >= 1000 && num<1000000) {
+			// 		num = Math.round(num/1000) + 'K'
+			// 	} else if (num >= 1000000) {
+			// 		num = Math.round(num/1000000) + 'M'
+			// 	} else if (num >= 1000000000) {
+			// 		num = (vars.precision) ? parseFloat(num/1000000000).toFixed(2)  + 'G' : Math.round(num/1000000000) + 'G';
+			// 	}
+			// 	return num;
+			// }
+			
+			// helper Function to round the displayed numbers
 			roundNumber = (num) => {
-				num = Math.round(num);
+				num = (vars.precision) ? parseFloat(num).toFixed(2) : Math.round(num);
 				if (num >= 1000 && num<1000000) {
-					num = Math.round(num/1000) + 'K'
-				} else if (num >= 1000000) {
-					num = Math.round(num/1000000) + 'M'
+					num = (vars.precision) ? parseFloat(num/1000).toFixed(2)  + 'K' : Math.round(num/1000) + 'K';
+				} else if (num >= 1000000 && num<1000000000) {
+					num = (vars.precision) ? parseFloat(num/1000000).toFixed(2)  + 'M' : Math.round(num/1000000) + 'M';
+				} else if (num >= 1000000000) {
+					num = (vars.precision) ? parseFloat(num/1000000000).toFixed(2)  + 'G' : Math.round(num/1000000000) + 'G';
 				}
 				return num;
 			}
