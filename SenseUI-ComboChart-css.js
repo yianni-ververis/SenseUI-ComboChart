@@ -25,10 +25,6 @@ let cssjs = (vars) => {
 			stroke: ${vars.measure4.color};
 			stroke-width: ${vars.measure4.stroke}px;
 		}
-		#${vars.id}_inner .hover {
-			fill: ${vars.line.color};
-			stroke: ${vars.line.color};
-		}
 		#${vars.id}_inner .bar1 {
 			fill: ${vars.measure1.color};
 			stroke: ${vars.measure1.strokeColor};
