@@ -39,7 +39,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.5',
+			v: '1.6',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -88,7 +88,9 @@ define( [
 		`;
 
 		// Write Css and html
-		$("<style>").html(vars.css).appendTo("head")
+		if (!$(`.${vars.id}.d3-tip`).length) { // insert only once
+			$("<style>").html(vars.css).appendTo("head")
+		}
 		$element.html(vars.template)
 		
 		vars.barWidth = (vars.width-vars.margin.left-vars.margin.right-5)/vars.bar.total
@@ -529,24 +531,51 @@ define( [
 		 }
 
 		// TOOLTIPS
-		var tip = d3.tip()
-			.attr('class', vars.id + ' d3-tip')
+		let tip = d3.tip()
+			.attr('class', `${vars.id} d3-tip`)
 			.offset([-10, 0])
 			.extensionData(vars.tooltip)
 			.html(function(d,i) {
-				var displayMeasure1 = roundNumber(d.measureNum);
-				var html = `
-					<div class="row dimension">${d.dimension}</div>
-					<div class="row measure"><div class="box measure1"></div>${vars.measure1.label}: ${displayMeasure1}</div>
+				const displayMeasure1 = roundNumber(d.measureNum);
+				// Flex
+				let html = `
+					<div class="tt-container">
+						<div class="tt-row"><div class="tt-item-header">${d.dimension}</div></div>
+						<div class="tt-row">
+							<div class="tt-item-label"><div class="box measure1"></div>${vars.measure1.label}:</div>
+							<div class="tt-item-value">${displayMeasure1}</div>
+						</div>
 				`;
 				if (vars.measure2.label) {
-					var displayMeasure2 = roundNumber(d.measureNum2);
-					html += `<div class="row measure"><div class="box measure2"></div>${vars.measure2.label}: ${displayMeasure2}</div>`;
+					const displayMeasure2 = roundNumber(d.measureNum2);
+					html += `
+						<div class="tt-row">
+							<div class="tt-item-label"><div class="box measure2"></div>${vars.measure2.label}:</div>
+							<div class="tt-item-value">${displayMeasure2}</div>
+						</div>
+					`;
 				}
 				if (vars.measure3.label) {
-					var displayMeasure3 = roundNumber(d.measureNum3);
-					html += `<div class="row measure"><div class="box measure3"></div>${vars.measure3.label}: ${displayMeasure3}</div>`;
+					const displayMeasure3 = roundNumber(d.measureNum3);
+					html += `
+						<div class="tt-row">
+							<div class="tt-item-label"><div class="box measure3"></div>${vars.measure3.label}:</div>
+							<div class="tt-item-value">${displayMeasure3}</div>
+						</div>
+					`;
 				}
+				if (vars.measure4.label) {
+					const displayMeasure4 = roundNumber(d.measureNum4);
+					html += `
+						<div class="tt-row">
+							<div class="tt-item-label"><div class="box measure4"></div>${vars.measure4.label}:</div>
+							<div class="tt-item-value">${displayMeasure4}</div>
+						</div>
+					`;
+				}
+				html += `
+					</div>
+				`;
 				return html;
 			})
 		svg.call(tip);
