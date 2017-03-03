@@ -16,7 +16,7 @@
   /* Safari */
   transition: opacity 1s;
   z-index: 1022;
-  font-family: helvetica, arial, 'sans-serif' !important;
+  font-family: Arial, Helvetica, sans-serif !important;
   -webkit-box-shadow: 0px 4px 7px -4px #999999;
   -moz-box-shadow: 0px 4px 7px -4px #999999;
   box-shadow: 0px 4px 7px -4px #999999;

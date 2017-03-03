@@ -1,3 +1,4 @@
+"use strict";
 // CSS
 let cssjs = (vars) => {
 	let css = `

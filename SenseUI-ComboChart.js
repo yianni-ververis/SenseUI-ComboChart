@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @name SenseUI-ComboChart
  * @author yianni.ververis@qlik.com
@@ -93,6 +94,19 @@ define( [
 		}
 		$element.html(vars.template)
 		
+			// helper Function to round the displayed numbers
+			let roundNumber = (num) => {
+				num = (vars.precision) ? parseFloat(num).toFixed(2) : Math.round(num);
+				if (num >= 1000 && num<1000000) {
+					num = (vars.precision) ? parseFloat(num/1000).toFixed(2)  + 'K' : Math.round(num/1000) + 'K';
+				} else if (num >= 1000000 && num<1000000000) {
+					num = (vars.precision) ? parseFloat(num/1000000).toFixed(2)  + 'M' : Math.round(num/1000000) + 'M';
+				} else if (num >= 1000000000) {
+					num = (vars.precision) ? parseFloat(num/1000000000).toFixed(2)  + 'G' : Math.round(num/1000000000) + 'G';
+				}
+				return num;
+			}
+			
 		vars.barWidth = (vars.width-vars.margin.left-vars.margin.right-5)/vars.bar.total
 		vars.data = layout.qHyperCube.qDataPages[0].qMatrix.map(function(d) {
 			return {
@@ -652,18 +666,6 @@ define( [
 			// 	return num;
 			// }
 			
-			// helper Function to round the displayed numbers
-			roundNumber = (num) => {
-				num = (vars.precision) ? parseFloat(num).toFixed(2) : Math.round(num);
-				if (num >= 1000 && num<1000000) {
-					num = (vars.precision) ? parseFloat(num/1000).toFixed(2)  + 'K' : Math.round(num/1000) + 'K';
-				} else if (num >= 1000000 && num<1000000000) {
-					num = (vars.precision) ? parseFloat(num/1000000).toFixed(2)  + 'M' : Math.round(num/1000000) + 'M';
-				} else if (num >= 1000000000) {
-					num = (vars.precision) ? parseFloat(num/1000000000).toFixed(2)  + 'G' : Math.round(num/1000000000) + 'G';
-				}
-				return num;
-			}
 		}
 
 		console.info(`%c ${vars.name}: `, 'color: red', `v ${vars.v}`)
