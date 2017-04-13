@@ -35,8 +35,9 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 
 ![SenseUI - Combo Chart](/preview2.png?raw=true "SenseUI - Combo Chart")
 
-#### Coming up
-- Tooltips
-- Multiple Selections
+#### Editing
+- npm install
+- Edit the SenseUI-ComboChart.es6
+- In your console type: npm start
 
 [Download zip file](https://github.com/yianni-ververis/SenseUI-ComboChart/archive/master.zip)
