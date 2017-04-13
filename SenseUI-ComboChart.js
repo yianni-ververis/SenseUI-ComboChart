@@ -478,7 +478,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			if (vars.measure4.label) {
 				displayLegend += "<div class=\"column\"><div class=\"box measure4\"></div>" + vars.measure4.label + "</div>";
 			}
-			svg.append("foreignObject").attr('width', vars.width).attr('height', 50).attr("x", -margin.left).attr("y", height + 40).append("xhtml:div").attr("class", "legend").html(displayLegend);
+			svg.append("foreignObject").attr('width', vars.width).attr('height', 50).attr("x", -margin.left).attr("y", height + 30).append("xhtml:div").attr("class", "legend").html(displayLegend);
 		}
 
 		// WRAP LABELS

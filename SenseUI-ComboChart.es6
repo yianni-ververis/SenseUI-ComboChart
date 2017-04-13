@@ -615,7 +615,7 @@ define( [
 				.attr('width', vars.width)
 				.attr('height', 50)
 				.attr("x", -margin.left)
-				.attr("y", height+40)
+				.attr("y", height+30)
 			.append("xhtml:div")
 				.attr("class", "legend")
 				.html(displayLegend);
