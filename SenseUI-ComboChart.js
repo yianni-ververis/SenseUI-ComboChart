@@ -9,6 +9,7 @@
  * @param {boolean} vars.enableSelections:
  * @description
  * A simple Combo Chart
+ * @version 1.7: Legend Alignment
  * @version 1.4: Add text on top of the bars
  * @version 1.3: Distribute Bars evenly
  * @version 1.2: Added Tooltips
@@ -31,7 +32,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 	me.paint = function ($element, layout) {
 		var vars = $.extend(true, {
-			v: '1.6',
+			v: '1.7',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -68,7 +69,8 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		vars.bar.count += vars.measure2.type && vars.measure2.visible ? 1 : 0;
 		vars.bar.count += vars.measure3.type && vars.measure3.visible ? 1 : 0;
 		vars.bar.count += vars.measure4.type && vars.measure4.visible ? 1 : 0;
-		vars.palette = ['#332288', '#88CCEE', '#DDCC77', '#117733', '#CC6677', '#3399CC', '#CC6666', '#99CC66', '#275378', '#B35A01', '#B974FD', '#993300', '#99CCCC', '#669933', '#898989', '#EDA1A1', '#C6E2A9', '#D4B881', '#137D77', '#D7C2EC', '#FF5500', '#15DFDF', '#93A77E', '#CB5090', '#BFBFBF'],
+		vars.palette = ['#332288', '#88CCEE', '#DDCC77', '#117733', '#CC6677', '#3399CC', '#CC6666', '#99CC66', '#275378', '#B35A01', '#B974FD', '#993300', '#99CCCC', '#669933', '#898989', '#EDA1A1', '#C6E2A9', '#D4B881', '#137D77', '#D7C2EC', '#FF5500', '#15DFDF', '#93A77E', '#CB5090', '#BFBFBF'];
+		vars.legendAlignment = vars.legendAlignment ? vars.legendAlignment : 'center'; // Default for the apps that have been created before this version
 
 		// CSS
 		vars.css = cssjs(vars);
@@ -76,10 +78,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		vars.template = "\n\t\t\t<div id=\"" + vars.id + "_inner\">\n\t\t\t\t<div class=\"content\"></div>\n\t\t\t</div>\n\t\t";
 
 		// Write Css and html
-		if (!$("." + vars.id + ".d3-tip").length) {
+		if ($("#" + vars.id + "_css").length) {
 			// insert only once
-			$("<style>").html(vars.css).appendTo("head");
+			$("#" + vars.id + "_css").remove();
 		}
+		// if (!$(`#${vars.id}_css`).length) { // insert only once
+		$("<style id=\"" + vars.id + "_css\">").html(vars.css).appendTo("head");
+		// }
 		$element.html(vars.template);
 
 		// helper Function to round the displayed numbers
@@ -473,7 +478,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			if (vars.measure4.label) {
 				displayLegend += "<div class=\"column\"><div class=\"box measure4\"></div>" + vars.measure4.label + "</div>";
 			}
-			svg.append("foreignObject").attr('width', 500).attr('height', 50).attr("y", "" + (height + 40)).append("xhtml:div").attr("class", "legend").html(displayLegend);
+			svg.append("foreignObject").attr('width', vars.width).attr('height', 50).attr("x", -margin.left).attr("y", height + 40).append("xhtml:div").attr("class", "legend").html(displayLegend);
 		}
 
 		// WRAP LABELS

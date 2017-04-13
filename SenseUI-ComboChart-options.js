@@ -62,6 +62,28 @@ var options = {
 								}],
 								defaultValue: true
 							},
+							legendAlignment: {
+								type: "string",
+								component: "radiobuttons",
+								label: "Align Legend",
+								ref: "vars.legendAlignment",
+								options: [{
+									value: "left",
+									label: "Left"
+								}, {
+									value: "center",
+									label: "Center"
+								}, {
+									value: "right",
+									label: "Right"
+								}],
+								defaultValue: "center",
+								show : function(data) {
+									if (data.vars.legend) {
+										return true;
+									}
+								}
+							},
 							enableSelections: {
 								type: "boolean",
 								component: "switch",
