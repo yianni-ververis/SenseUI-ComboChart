@@ -32,7 +32,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 	me.paint = function ($element, layout) {
 		var vars = $.extend(true, {
-			v: '1.7',
+			v: '1.7.2',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -88,14 +88,29 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		$element.html(vars.template);
 
 		// helper Function to round the displayed numbers
-		var roundNumber = function roundNumber(num) {
-			num = vars.precision ? parseFloat(num).toFixed(2) : Math.round(num);
-			if (num >= 1000 && num < 1000000) {
-				num = vars.precision ? parseFloat(num / 1000).toFixed(2) + 'K' : Math.round(num / 1000) + 'K';
-			} else if (num >= 1000000 && num < 1000000000) {
-				num = vars.precision ? parseFloat(num / 1000000).toFixed(2) + 'M' : Math.round(num / 1000000) + 'M';
-			} else if (num >= 1000000000) {
-				num = vars.precision ? parseFloat(num / 1000000000).toFixed(2) + 'G' : Math.round(num / 1000000000) + 'G';
+		var roundNumber = function roundNumber(num, noPrecision) {
+			//check if the string passed is number or contains formatting like 13%
+			if (/^[0-9.]+$/.test(num)) {
+				num = vars.precision && !noPrecision ? parseFloat(num).toFixed(2) : Math.round(num);
+				if (num >= 1000 && num < 1000000) {
+					num = vars.precision && !noPrecision ? parseFloat(num / 1000).toFixed(2) : Math.round(num / 1000);
+					if (/\.00$/.test(num)) {
+						num = num.replace(/\.00$/, ''); // Remove .00
+					}
+					num += 'K'; // Add the abbreviation
+				} else if (num >= 1000000 && num < 1000000000) {
+					num = vars.precision && !noPrecision ? parseFloat(num / 1000000).toFixed(2) : Math.round(num / 1000000);
+					if (/\.00$/.test(num)) {
+						num = num.replace(/\.00$/, ''); // Remove .00
+					}
+					num += 'M'; // Add the abbreviation
+				} else if (num >= 1000000000) {
+					num = vars.precision && !noPrecision ? parseFloat(num / 1000000000).toFixed(2) : Math.round(num / 1000000000);
+					if (/\.00$/.test(num)) {
+						num = num.replace(/\.00$/, ''); // Remove .00
+					}
+					num += 'T'; // Add the abbreviation
+				}
 			}
 			return num;
 		};
@@ -205,14 +220,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 			return roundNumber(d.measureNum);
 		}).attr("x", function (d, i) {
-			// if (vars.bar.width) {
-			// 	return x(d.dimension)+ (x.rangeBand()-(vars.bar.width-vars.bar.width))/2;
-			// } else {
-			// 	console.log(d)
-			// return x(d.dimension) + (x.rangeBand()/vars.bar.count)/vars.bar.count;
 			return x(d.dimension) + x.rangeBand() * (vars.bar.count * 2 - (vars.bar.count * 2 - 1)) / (vars.bar.count * 2);
-			// return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-1))/(vars.bar.count*2)); 
-			// }
 		}).attr("y", function (d) {
 			return y(d.measureNum) - 5;
 		}).attr("text-anchor", 'middle');

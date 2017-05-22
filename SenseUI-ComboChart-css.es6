@@ -1,7 +1,6 @@
 "use strict";
 // CSS
 const cssjs = (vars) => {
-	console.log(vars)
 	let css = `
 		#${vars.id}_inner {
 			width: ${vars.width}px;
