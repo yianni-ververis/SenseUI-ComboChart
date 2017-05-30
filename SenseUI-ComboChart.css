@@ -1,5 +1,7 @@
 /* D3 TIP*/
 .d3-tip {
+  display: none;
+  position: absolute;
   font-size: 11px;
   padding: 8px;
   background: white !important;

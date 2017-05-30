@@ -10,7 +10,7 @@
   "scripts": {
     "start": "npm run cssjs & npm run js",
     "cssjs": "babel SenseUI-ComboChart-css.es6 --out-file SenseUI-ComboChart-css.js --presets=es2015",
-    "js": "babel SenseUI-ComboChart.es6 --watch --out-file SenseUI-ComboChart.js --presets=es2015"
+    "js": "babel SenseUI-ComboChart.es6 --out-file SenseUI-ComboChart.js --presets=es2015"
   },
   "repository": {
     "type": "git",

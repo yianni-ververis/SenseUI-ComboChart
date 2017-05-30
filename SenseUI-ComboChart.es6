@@ -41,7 +41,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.7.2',
+			v: '1.7.3',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -60,6 +60,14 @@ define( [
 			},
 			measure4: {
 				label: (layout.qHyperCube.qMeasureInfo[3]) ? layout.qHyperCube.qMeasureInfo[3].qFallbackTitle : null,
+			},
+			tooltip: {
+				// visible: (layout.vars.tooltip && layout.vars.tooltip.visible)?true:false,
+				// dimension: (layout.vars.tooltip && layout.vars.tooltip.dimension)?true:false,
+				// mashup: (layout.vars.tooltip && layout.vars.tooltip.mashup)?true:false,
+				divid: (layout.vars.tooltip && layout.vars.tooltip.divid)? layout.vars.tooltip.divid : 'maincontent',
+				scrollLeft: 0,
+				scrollTop: 0,
 			},
 			data: [],
 			this: this
@@ -240,66 +248,113 @@ define( [
 		/* ***********
 		 * MEASURE 1
 		 * ***********/
-		svg.select("#measure1")
-			.selectAll(".bar")
-			.data(vars.data)
-			.enter().append("rect")
-			.attr("class", "bar1")
-			.attr("x", function(d) { 
-				if (vars.bar.width) {
-					return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
-				} else {
-					return x(d.dimension);
-				}
-			})
-			.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
-			.attr("y", function(d) { return y(d.measureNum); })
-			.attr("height", function(d) { return height - y(d.measureNum); })			
-			.on('mouseover', function(d,i){
-				tip.show(d, i); 
-				setTimeout(function(){tip.hide();}, 10000);
-			})
-			.on('mouseleave', function(d,i){
-				tip.hide();
-			})
-			.on('click', function(d,i) {
-				if (vars.enableSelections) {
-					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
-				}
-			});		
-		// Add the text on top of the bars
-		svg.select("#labels")
-			.selectAll(".text")
-			.data(vars.data)
-			.enter().append("text")
-			.text(function(d) {
-				return roundNumber(d.measureNum);
-			})
-			.attr("x", function(d, i) { 
-				return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-1)))/(vars.bar.count*2));
-			})
-			.attr("y", function(d) { return y(d.measureNum)-5; })
-			.attr("text-anchor", 'middle')
+		if (!vars.measure1.type) { // if it is a line	
+				// var y1 = d3.scale.linear()
+				// 	.range([height, 0])
+				// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
+				var line1 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y(d.measureNum); })
+				// Create the line
+				svg.select("#measure1")
+					.append("g").attr("id", "line1")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line1")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line1)
+				// Add the dots
+				svg.select("#measure1")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot1")
+						.attr("r", vars.measure1.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y(d.measureNum); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,1));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
+		} else { // If it is a bar
+			svg.select("#measure1")
+				.selectAll(".bar")
+				.data(vars.data)
+				.enter().append("rect")
+				.attr("class", "bar1")
+				.attr("x", function(d) { 
+					if (vars.bar.width) {
+						return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
+					} else {
+						return x(d.dimension);
+					}
+				})
+				.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+				.attr("y", function(d) { return y(d.measureNum); })
+				.attr("height", function(d) { return height - y(d.measureNum); })			
+				.on('mouseover', function(d,i){
+					tip.show(d, i); 
+					setTimeout(function(){tip.hide();}, 10000);
+				})
+				.on('mouseleave', function(d,i){
+					tip.hide();
+				})
+				.on('click', function(d,i) {
+					if (vars.enableSelections) {
+						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+					}
+				});		
+			// Add the text on top of the bars
+			svg.select("#labels")
+				.selectAll(".text")
+				.data(vars.data)
+				.enter().append("text")
+				.text(function(d) {
+					return roundNumber(d.measureNum);
+				})
+				.attr("x", function(d, i) { 
+					return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-1)))/(vars.bar.count*2));
+				})
+				.attr("y", function(d) { return y(d.measureNum)-5; })
+				.attr("text-anchor", 'middle')
+		}
 
 		/* ***********
 		 * MEASURE 2
 		 * ***********/
 		if (vars.measure2.label && vars.measure2.visible) {
 			if (!vars.measure2.type) { // if it is a line
-				var y2 = d3.scale.linear()
-					.range([height, 0])
-					.domain([0, d3.max(vars.data, function(d) { return d.measureNum2; })]);
-				var line = d3.svg.line()
+				// var y2 = d3.scale.linear()
+				// 	.range([height, 0])
+				// 	.domain([0, yAxisMax]);
+				var line2 = d3.svg.line()
 					.x(function(d) { return x(d.dimension); })
-					.y(function(d) { return y2(d.measureNum2); })
+					.y(function(d) { return y(d.measureNum2); })
 				// Create the line
 				svg.select("#measure2")
-					.append("g").attr("id", "line")
+					.append("g").attr("id", "line2")
 					.append("path")
 					.datum(vars.data)
 						.attr("class", "line2")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
-						.attr("d", line)
+						.attr("d", line2)
 				// Add the dots
 				svg.select("#measure2")
 					.selectAll("dots")
@@ -308,8 +363,28 @@ define( [
 						.attr("class", "dot2")
 						.attr("r", vars.measure2.radius)
 						.attr("cx", function(d) { return x(d.dimension); })
-						.attr("cy", function(d) { return y2(d.measureNum2); })
+						.attr("cy", function(d) { return y(d.measureNum2); })
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,2));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
 			} else { // If it is a bar
 				svg.select("#measure2")
 					.selectAll(".bar2")
@@ -359,20 +434,17 @@ define( [
 		 * ***********/
 		if (vars.measure3.label && vars.measure3.visible) {
 			if (!vars.measure3.type) { // if it is a line
-				var y3 = d3.scale.linear()
-					.range([height, 0])
-					.domain([0, d3.max(vars.data, function(d) { return d.measureNum3; })]);
-				var line2 = d3.svg.line()
+				var line3 = d3.svg.line()
 					.x(function(d) { return x(d.dimension); })
-					.y(function(d) { return y3(d.measureNum3); })
+					.y(function(d) { return y(d.measureNum3); })
 				// Create the line
 				svg.select("#measure3")
-					.append("g").attr("id", "line2")
+					.append("g").attr("id", "line3")
 					.append("path")
 					.datum(vars.data)
 						.attr("class", "line3")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
-						.attr("d", line2)
+						.attr("d", line3)
 				// Add the dots
 				svg.select("#measure3")
 					.selectAll("dots")
@@ -381,8 +453,28 @@ define( [
 						.attr("class", "dot3")
 						.attr("r", vars.measure3.radius)
 						.attr("cx", function(d) { return x(d.dimension); })
-						.attr("cy", function(d) { return y3(d.measureNum3); })
+						.attr("cy", function(d) { return y(d.measureNum3); })
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,3));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
 			} else { // If it is a bar
 				svg.select("#measure3")
 					.selectAll(".bar3")
@@ -434,9 +526,6 @@ define( [
 		 * ***********/
 		if (vars.measure4.label && vars.measure4.visible) {
 			if (!vars.measure4.type) { // if it is a line
-				// var y3 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum4; })]);
 				var line4 = d3.svg.line()
 					.x(function(d) { return x(d.dimension); })
 					.y(function(d) { return y(d.measureNum4); })
@@ -457,15 +546,23 @@ define( [
 						.attr("r", vars.measure4.radius)
 						.attr("cx", function(d) { return x(d.dimension); })
 						.attr("cy", function(d) { return y(d.measureNum4); })
-						.attr("transform", `translate(${x.rangeBand()/2},0)`)		
-						.on('mouseover', function(d,i){
-							tip.show(d, i); 
-							setTimeout(function(){tip.hide();}, 10000);
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)	
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,4));
 						})
-						.on('mouseleave', function(d,i){
-							tip.hide();
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
 						})
 						.on('click', function(d,i) {
+							tooltip.style("display", "none");
 							if (vars.enableSelections) {
 								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 							}
@@ -558,54 +655,44 @@ define( [
 		 }
 
 		// TOOLTIPS
-		let tip = d3.tip()
-			.attr('class', `${vars.id} d3-tip`)
-			.offset([-10, 0])
-			.extensionData(vars.tooltip)
-			.html(function(d,i) {
-				const displayMeasure1 = roundNumber(d.measureNum);
-				// Flex
-				let html = `
-					<div class="tt-container">
-						<div class="tt-row"><div class="tt-item-header">${d.dimension}</div></div>
-						<div class="tt-row">
-							<div class="tt-item-label"><div class="box measure1"></div>${vars.measure1.label}:</div>
-							<div class="tt-item-value">${displayMeasure1}</div>
-						</div>
-				`;
-				if (vars.measure2.label) {
-					const displayMeasure2 = roundNumber(d.measureNum2);
-					html += `
-						<div class="tt-row">
-							<div class="tt-item-label"><div class="box measure2"></div>${vars.measure2.label}:</div>
-							<div class="tt-item-value">${displayMeasure2}</div>
-						</div>
-					`;
-				}
-				if (vars.measure3.label) {
-					const displayMeasure3 = roundNumber(d.measureNum3);
-					html += `
-						<div class="tt-row">
-							<div class="tt-item-label"><div class="box measure3"></div>${vars.measure3.label}:</div>
-							<div class="tt-item-value">${displayMeasure3}</div>
-						</div>
-					`;
-				}
-				if (vars.measure4.label) {
-					const displayMeasure4 = roundNumber(d.measureNum4);
-					html += `
-						<div class="tt-row">
-							<div class="tt-item-label"><div class="box measure4"></div>${vars.measure4.label}:</div>
-							<div class="tt-item-value">${displayMeasure4}</div>
-						</div>
-					`;
-				}
-				html += `
+		const tooltip = d3.select("body").append("div").attr("class", vars.id + " d3-tip");
+		const tooltipHtml = (d,i,m) => {
+			const display = {
+				bgColor: vars.measure1.color,
+				title: d.dimension,
+				label: vars.measure1.label,
+				value: roundNumber(d.measureNum),
+			}
+			if (m && m==2) {
+				display.bgColor = vars.measure2.color;
+				display.label = vars.measure2.label;
+				display.value = roundNumber(d.measureNum2);
+			}
+			if (m && m==3) {
+				display.bgColor = vars.measure3.color;
+				display.label = vars.measure3.label;
+				display.value = roundNumber(d.measureNum3);
+			}
+			if (m && m==4) {
+				display.bgColor = vars.measure4.color;
+				display.label = vars.measure4.label;
+				display.value = roundNumber(d.measureNum4);
+			}
+			// Flex
+			let html = `
+				<div class="tt-container">
+					<div class="tt-row"><div class="tt-item-header">${display.title}</div></div>
+			`;
+			html += `
+					<div class="tt-row">
+						<div class="tt-item-label"><div class="box" style="background-color: ${display.bgColor}"></div>${display.label}:</div>
+						<div class="tt-item-value">${display.value}</div>
 					</div>
-				`;
-				return html;
-			})
-		svg.call(tip);
+				</div>
+			`;
+			
+			return html;
+		}
 
 		// LEGEND
 		if (vars.legend) {

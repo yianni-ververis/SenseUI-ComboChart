@@ -151,8 +151,22 @@ var options = {
 					},
 					measure1: {
 						type: "items",
-						label: "Measure 1 - Bar Chart",
+						label: "Measure 1",
 						items: {
+							measure1type: {
+								type: "boolean",
+								component: "switch",
+								label: "Bar / Line",
+								ref: "vars.measure1.type",
+								options: [{
+									value: true,
+									label: "Bar"
+								}, {
+									value: false,
+									label: "line"
+								}],
+								defaultValue: true
+							},
 							measure1color: {
 								type: "string",
 								expression: "none",
@@ -188,6 +202,18 @@ var options = {
 								defaultValue: "#77b62a",
 								ref: "vars.measure1.strokeColorHover"
 							},
+							measure1radius: {
+								type: "string",
+								expression: "none",
+								label: "Dot Radius",
+								defaultValue: "5",
+								ref: "vars.measure1.radius",
+								show : function(data) {
+									if (!data.vars.measure1.type) {
+										return true;
+									}
+								}
+							},
 						},
 					},
 					measure2: {
@@ -203,7 +229,7 @@ var options = {
 							measure2type: {
 								type: "boolean",
 								component: "switch",
-								label: "Line / Bar",
+								label: "Bar / Line",
 								ref: "vars.measure2.type",
 								options: [{
 									value: true,
@@ -289,7 +315,7 @@ var options = {
 							measure3type: {
 								type: "boolean",
 								component: "switch",
-								label: "Line / Bar",
+								label: "Bar / Line",
 								ref: "vars.measure3.type",
 								options: [{
 									value: true,
@@ -375,7 +401,7 @@ var options = {
 							measure4type: {
 								type: "boolean",
 								component: "switch",
-								label: "Line / Bar",
+								label: "Bar / Line",
 								ref: "vars.measure4.type",
 								options: [{
 									value: true,

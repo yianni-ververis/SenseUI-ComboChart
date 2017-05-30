@@ -11,6 +11,11 @@ const cssjs = (vars) => {
 		#${vars.id}_inner .content {
 			width: ${vars.contentWidth}px;
 		}
+		#${vars.id}_inner .line1 {
+			fill: none;
+			stroke: ${vars.measure1.color};
+			stroke-width: ${vars.measure1.stroke}px;
+		}
 		#${vars.id}_inner .line2 {
 			fill: none;
 			stroke: ${vars.measure2.color};
@@ -26,6 +31,7 @@ const cssjs = (vars) => {
 			stroke: ${vars.measure4.color};
 			stroke-width: ${vars.measure4.stroke}px;
 		}
+		#${vars.id}_inner .dot1,
 		#${vars.id}_inner .bar1 {
 			fill: ${vars.measure1.color};
 			stroke: ${vars.measure1.strokeColor};
