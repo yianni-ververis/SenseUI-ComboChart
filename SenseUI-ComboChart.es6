@@ -41,7 +41,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.7.3',
+			v: '1.7.5',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -248,10 +248,7 @@ define( [
 		/* ***********
 		 * MEASURE 1
 		 * ***********/
-		if (!vars.measure1.type) { // if it is a line	
-				// var y1 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
+		if (!vars.measure1.type) { // if it is a line
 				var line1 = d3.svg.line()
 					.x(function(d) { return x(d.dimension); })
 					.y(function(d) { return y(d.measureNum); })
@@ -276,10 +273,10 @@ define( [
 						.on("mousemove", function(d,i){
 							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
 								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
 							}
 							tooltip
-							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
 							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
 							.style("display", "inline-block")
 							.html(tooltipHtml(d,i,1));
@@ -300,27 +297,32 @@ define( [
 				.enter().append("rect")
 				.attr("class", "bar1")
 				.attr("x", function(d) { 
-					if (vars.bar.width) {
-						return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
-					} else {
-						return x(d.dimension);
-					}
+					return x(d.dimension);
 				})
 				.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 				.attr("y", function(d) { return y(d.measureNum); })
-				.attr("height", function(d) { return height - y(d.measureNum); })			
-				.on('mouseover', function(d,i){
-					tip.show(d, i); 
-					setTimeout(function(){tip.hide();}, 10000);
+				.attr("height", function(d) { return height - y(d.measureNum); })	
+				.on("mousemove", function(d,i){
+					if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+						vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+					}
+					tooltip
+					.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+					.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+					.style("display", "inline-block")
+					.html(tooltipHtml(d,i,1));
 				})
-				.on('mouseleave', function(d,i){
-					tip.hide();
+				.on("mouseout", function(d,i){ 
+					tooltip.style("display", "none");
 				})
 				.on('click', function(d,i) {
+					tooltip.style("display", "none");
 					if (vars.enableSelections) {
 						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 					}
-				});		
+				});	
+				console.log(vars)
 			// Add the text on top of the bars
 			svg.select("#labels")
 				.selectAll(".text")
@@ -330,7 +332,9 @@ define( [
 					return roundNumber(d.measureNum);
 				})
 				.attr("x", function(d, i) { 
-					return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-1)))/(vars.bar.count*2));
+					// return (x(d.dimension)+x.rangeBand()/(vars.bar.count*2));
+					// return x(d.dimension)+x.rangeBand()/(1*(vars.bar.count*2)); // position + total width of all bars / total halfs
+					return x(d.dimension)+(1*(x.rangeBand()/(vars.bar.count*2))); // position + total width of all bars / total halfs
 				})
 				.attr("y", function(d) { return y(d.measureNum)-5; })
 				.attr("text-anchor", 'middle')
@@ -341,9 +345,6 @@ define( [
 		 * ***********/
 		if (vars.measure2.label && vars.measure2.visible) {
 			if (!vars.measure2.type) { // if it is a line
-				// var y2 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, yAxisMax]);
 				var line2 = d3.svg.line()
 					.x(function(d) { return x(d.dimension); })
 					.y(function(d) { return y(d.measureNum2); })
@@ -368,10 +369,10 @@ define( [
 						.on("mousemove", function(d,i){
 							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
 								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
 							}
 							tooltip
-							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
 							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
 							.style("display", "inline-block")
 							.html(tooltipHtml(d,i,2));
@@ -392,27 +393,31 @@ define( [
 					.enter().append("rect")
 					.attr("class", "bar2")
 					.attr("x", function(d) { 
-						if (vars.bar.width) {
-							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
-						} else {
-							return x(d.dimension)+(x.rangeBand()/vars.bar.count);
-						}
+						return x(d.dimension)+(x.rangeBand()/vars.bar.count);
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum2); })
-					.attr("height", function(d) { return height - y(d.measureNum2); })			
-					.on('mouseover', function(d,i){
-						tip.show(d, i); 
-						setTimeout(function(){tip.hide();}, 10000);
-					})
-					.on('mouseleave', function(d,i){
-						tip.hide();
-					})
-					.on('click', function(d,i) {
-						if (vars.enableSelections) {
-							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
-						}
-					});
+					.attr("height", function(d) { return height - y(d.measureNum2); })	
+				.on("mousemove", function(d,i){
+					if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+						vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+					}
+					tooltip
+					.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+					.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+					.style("display", "inline-block")
+					.html(tooltipHtml(d,i,2));
+				})
+				.on("mouseout", function(d,i){ 
+					tooltip.style("display", "none");
+				})
+				.on('click', function(d,i) {
+					tooltip.style("display", "none");
+					if (vars.enableSelections) {
+						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+					}
+				});		
 				// Add the text on the bars
 				svg.select("#labels")
 					.selectAll(".text")
@@ -422,7 +427,7 @@ define( [
 						return roundNumber(d.measureNum2);
 					})
 					.attr("x", function(d, i) { 
-						return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-((vars.bar.count*2)-3)))/(vars.bar.count*2)); // Works for 3 bars but not for 2// Split the bars into 2 and set the text in the middle
+						return x(d.dimension)+(3*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum2)-5; })
 					.attr("text-anchor", 'middle')
@@ -458,10 +463,10 @@ define( [
 						.on("mousemove", function(d,i){
 							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
 								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
 							}
 							tooltip
-							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
 							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
 							.style("display", "inline-block")
 							.html(tooltipHtml(d,i,3));
@@ -481,29 +486,32 @@ define( [
 					.data(vars.data)
 					.enter().append("rect")
 					.attr("class", "bar3")
-					.attr("x", function(d) { 
-						if (vars.bar.width) {
-							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
-						} else {
-							// return x(d.dimension)+((x.rangeBand()/vars.bar.count)*2); //2 since this is the 3nd dimension// /vars.bar.count
-							return x(d.dimension) + ((x.rangeBand()*((vars.bar.count*2)-(vars.bar.count-1)))/(vars.bar.count*2)); 
-						}
+					.attr("x", function(d) {
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*2); 
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum3); })
-					.attr("height", function(d) { return height - y(d.measureNum3); })			
-					.on('mouseover', function(d,i){
-						tip.show(d, i); 
-						setTimeout(function(){tip.hide();}, 10000);
+					.attr("height", function(d) { return height - y(d.measureNum3); })	
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,3));
 					})
-					.on('mouseleave', function(d,i){
-						tip.hide();
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
 					})
 					.on('click', function(d,i) {
+						tooltip.style("display", "none");
 						if (vars.enableSelections) {
 							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 						}
-					});
+					});		
 				// Add the text on the bars
 				svg.select("#labels")
 					.selectAll(".text")
@@ -513,8 +521,7 @@ define( [
 						return roundNumber(d.measureNum3);
 					})
 					.attr("x", function(d, i) { 
-						// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
-						return x(d.dimension) + ((x.rangeBand()*5)/6);
+						return x(d.dimension)+(5*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum3)-5; })
 					.attr("text-anchor", 'middle')
@@ -550,10 +557,10 @@ define( [
 						.on("mousemove", function(d,i){
 							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
 								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-								vars.tooltip.scrollTop = -$('#'+vars.tooltip.divid).offset().top;
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
 							}
 							tooltip
-							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($('.'+vars.id + '.d3-tip').width() / 2) - 7 + "px")
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
 							.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
 							.style("display", "inline-block")
 							.html(tooltipHtml(d,i,4));
@@ -573,28 +580,32 @@ define( [
 					.data(vars.data)
 					.enter().append("rect")
 					.attr("class", "bar4")
-					.attr("x", function(d) { 
-						if (vars.bar.width) {
-							return x(d.dimension)+ (x.rangeBand()-(vars.bar.width/vars.bar.count))/2;
-						} else {
-							return x(d.dimension)+((x.rangeBand()/vars.bar.count)*3); //3 since this is the 4th dimension// /vars.bar.count
-						}
+					.attr("x", function(d) {
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*3);
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum4); })
-					.attr("height", function(d) { return height - y(d.measureNum4); })			
-					.on('mouseover', function(d,i){
-						tip.show(d, i); 
-						setTimeout(function(){tip.hide();}, 10000);
+					.attr("height", function(d) { return height - y(d.measureNum4); })
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px")
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,4));
 					})
-					.on('mouseleave', function(d,i){
-						tip.hide();
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
 					})
 					.on('click', function(d,i) {
+						tooltip.style("display", "none");
 						if (vars.enableSelections) {
 							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 						}
-					});
+					});		
 				// Add the text on the bars
 				svg.select("#labels")
 					.selectAll(".text")
@@ -604,10 +615,9 @@ define( [
 						return roundNumber(d.measureNum4);
 					})
 					.attr("x", function(d, i) { 
-						// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
-						return x(d.dimension) + ((x.rangeBand()*7)/8);
+						return x(d.dimension)+(7*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
-					.attr("y", function(d) { return y(d.measureNum3)-5; })
+					.attr("y", function(d) { return y(d.measureNum4)-5; })
 					.attr("text-anchor", 'middle')
 			}
 		}
@@ -655,6 +665,9 @@ define( [
 		 }
 
 		// TOOLTIPS
+		if ($(`.${vars.id}.d3-tip`).length) {
+			$(`.${vars.id}.d3-tip`).remove();
+		}
 		const tooltip = d3.select("body").append("div").attr("class", vars.id + " d3-tip");
 		const tooltipHtml = (d,i,m) => {
 			const display = {
@@ -756,7 +769,8 @@ define( [
 			});			
 		}
 
-		console.info(`%c ${vars.name}: `, 'color: red', `v ${vars.v}`)
+		console.info(`%c SenseUI-ComboChart ${vars.v}: `, 'color: red', `#${vars.id} Loaded!`)
+		
 		//needed for export
 		return qlik.Promise.resolve()
 	};

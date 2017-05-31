@@ -29,6 +29,10 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 - Bar Border Width
 - Dot Radius
 
+![SenseUI - Combo Chart](/preview5.png?raw=true "SenseUI - Combo Chart")
+
+![SenseUI - Combo Chart](/preview4.png?raw=true "SenseUI - Combo Chart")
+
 ![SenseUI - Combo Chart](/preview3.png?raw=true "SenseUI - Combo Chart")
 
 ![SenseUI - Combo Chart](/preview.png?raw=true "SenseUI - Combo Chart")

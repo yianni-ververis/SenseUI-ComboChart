@@ -32,7 +32,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 	me.paint = function ($element, layout) {
 		var vars = $.extend(true, {
-			v: '1.7.2',
+			v: '1.7.4',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -203,10 +203,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
    * MEASURE 1
    * ***********/
 		if (!vars.measure1.type) {
-			// if it is a line	
-			// var y1 = d3.scale.linear()
-			// 	.range([height, 0])
-			// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum; })]);
+			// if it is a line
 			var line1 = d3.svg.line().x(function (d) {
 				return x(d.dimension);
 			}).y(function (d) {
@@ -222,9 +219,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			}).attr("transform", "translate(" + x.rangeBand() / 2 + ",0)").on("mousemove", function (d, i) {
 				if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
 					vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-					vars.tooltip.scrollTop = -$('#' + vars.tooltip.divid).offset().top;
+					vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 				}
-				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $('.' + vars.id + '.d3-tip').width() / 2 - 7 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 1));
+				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 1));
 			}).on("mouseout", function (d, i) {
 				tooltip.style("display", "none");
 			}).on('click', function (d, i) {
@@ -236,32 +233,33 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		} else {
 			// If it is a bar
 			svg.select("#measure1").selectAll(".bar").data(vars.data).enter().append("rect").attr("class", "bar1").attr("x", function (d) {
-				if (vars.bar.width) {
-					return x(d.dimension) + (x.rangeBand() - vars.bar.width / vars.bar.count) / 2;
-				} else {
-					return x(d.dimension);
-				}
+				return x(d.dimension);
 			}).attr("width", vars.bar.width ? vars.bar.width / vars.bar.count : x.rangeBand() / vars.bar.count).attr("y", function (d) {
 				return y(d.measureNum);
 			}).attr("height", function (d) {
 				return height - y(d.measureNum);
-			}).on('mouseover', function (d, i) {
-				tip.show(d, i);
-				setTimeout(function () {
-					tip.hide();
-				}, 10000);
-			}).on('mouseleave', function (d, i) {
-				tip.hide();
+			}).on("mousemove", function (d, i) {
+				if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
+					vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+					vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
+				}
+				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 1));
+			}).on("mouseout", function (d, i) {
+				tooltip.style("display", "none");
 			}).on('click', function (d, i) {
+				tooltip.style("display", "none");
 				if (vars.enableSelections) {
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 				}
 			});
+			console.log(vars);
 			// Add the text on top of the bars
 			svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 				return roundNumber(d.measureNum);
 			}).attr("x", function (d, i) {
-				return x(d.dimension) + x.rangeBand() * (vars.bar.count * 2 - (vars.bar.count * 2 - 1)) / (vars.bar.count * 2);
+				// return (x(d.dimension)+x.rangeBand()/(vars.bar.count*2));
+				// return x(d.dimension)+x.rangeBand()/(1*(vars.bar.count*2)); // position + total width of all bars / total halfs
+				return x(d.dimension) + 1 * (x.rangeBand() / (vars.bar.count * 2)); // position + total width of all bars / total halfs
 			}).attr("y", function (d) {
 				return y(d.measureNum) - 5;
 			}).attr("text-anchor", 'middle');
@@ -273,9 +271,6 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		if (vars.measure2.label && vars.measure2.visible) {
 			if (!vars.measure2.type) {
 				// if it is a line
-				// var y2 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, yAxisMax]);
 				var line2 = d3.svg.line().x(function (d) {
 					return x(d.dimension);
 				}).y(function (d) {
@@ -291,9 +286,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				}).attr("transform", "translate(" + x.rangeBand() / 2 + ",0)").on("mousemove", function (d, i) {
 					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-						vars.tooltip.scrollTop = -$('#' + vars.tooltip.divid).offset().top;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $('.' + vars.id + '.d3-tip').width() / 2 - 7 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 2));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 2));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -305,23 +300,21 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			} else {
 				// If it is a bar
 				svg.select("#measure2").selectAll(".bar2").data(vars.data).enter().append("rect").attr("class", "bar2").attr("x", function (d) {
-					if (vars.bar.width) {
-						return x(d.dimension) + (x.rangeBand() - vars.bar.width / vars.bar.count) / 2;
-					} else {
-						return x(d.dimension) + x.rangeBand() / vars.bar.count;
-					}
+					return x(d.dimension) + x.rangeBand() / vars.bar.count;
 				}).attr("width", vars.bar.width ? vars.bar.width / vars.bar.count : x.rangeBand() / vars.bar.count).attr("y", function (d) {
 					return y(d.measureNum2);
 				}).attr("height", function (d) {
 					return height - y(d.measureNum2);
-				}).on('mouseover', function (d, i) {
-					tip.show(d, i);
-					setTimeout(function () {
-						tip.hide();
-					}, 10000);
-				}).on('mouseleave', function (d, i) {
-					tip.hide();
+				}).on("mousemove", function (d, i) {
+					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
+						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
+					}
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 2));
+				}).on("mouseout", function (d, i) {
+					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
+					tooltip.style("display", "none");
 					if (vars.enableSelections) {
 						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 					}
@@ -330,7 +323,11 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 					return roundNumber(d.measureNum2);
 				}).attr("x", function (d, i) {
-					return x(d.dimension) + x.rangeBand() * (vars.bar.count * 2 - (vars.bar.count * 2 - 3)) / (vars.bar.count * 2); // Works for 3 bars but not for 2// Split the bars into 2 and set the text in the middle
+					// return x(d.dimension)+(x.rangeBand()/vars.bar.count);
+					return x(d.dimension) + 3 * (x.rangeBand() / (vars.bar.count * 2)); // position + hw mnay halfs * (total width of all bars / total halfs)
+					// return x(d.dimension)+x.rangeBand()/(vars.bar.count*2)+(x.rangeBand()/vars.bar.count);
+
+					// return x(d.dimension)+((x.rangeBand()/(vars.bar.count*2))*((vars.bar.count*2)-(vars.bar.count-1)));
 				}).attr("y", function (d) {
 					return y(d.measureNum2) - 5;
 				}).attr("text-anchor", 'middle');
@@ -343,9 +340,6 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		if (vars.measure3.label && vars.measure3.visible) {
 			if (!vars.measure3.type) {
 				// if it is a line
-				// var y3 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, yAxisMax]);
 				var line3 = d3.svg.line().x(function (d) {
 					return x(d.dimension);
 				}).y(function (d) {
@@ -361,9 +355,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				}).attr("transform", "translate(" + x.rangeBand() / 2 + ",0)").on("mousemove", function (d, i) {
 					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-						vars.tooltip.scrollTop = -$('#' + vars.tooltip.divid).offset().top;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $('.' + vars.id + '.d3-tip').width() / 2 - 7 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 3));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 3));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -375,24 +369,21 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			} else {
 				// If it is a bar
 				svg.select("#measure3").selectAll(".bar3").data(vars.data).enter().append("rect").attr("class", "bar3").attr("x", function (d) {
-					if (vars.bar.width) {
-						return x(d.dimension) + (x.rangeBand() - vars.bar.width / vars.bar.count) / 2;
-					} else {
-						// return x(d.dimension)+((x.rangeBand()/vars.bar.count)*2); //2 since this is the 3nd dimension// /vars.bar.count
-						return x(d.dimension) + x.rangeBand() * (vars.bar.count * 2 - (vars.bar.count - 1)) / (vars.bar.count * 2);
-					}
+					return x(d.dimension) + x.rangeBand() / vars.bar.count * 2;
 				}).attr("width", vars.bar.width ? vars.bar.width / vars.bar.count : x.rangeBand() / vars.bar.count).attr("y", function (d) {
 					return y(d.measureNum3);
 				}).attr("height", function (d) {
 					return height - y(d.measureNum3);
-				}).on('mouseover', function (d, i) {
-					tip.show(d, i);
-					setTimeout(function () {
-						tip.hide();
-					}, 10000);
-				}).on('mouseleave', function (d, i) {
-					tip.hide();
+				}).on("mousemove", function (d, i) {
+					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
+						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
+					}
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 3));
+				}).on("mouseout", function (d, i) {
+					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
+					tooltip.style("display", "none");
 					if (vars.enableSelections) {
 						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 					}
@@ -401,8 +392,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 					return roundNumber(d.measureNum3);
 				}).attr("x", function (d, i) {
-					// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
-					return x(d.dimension) + x.rangeBand() * 5 / 6;
+					return x(d.dimension) + 5 * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
 				}).attr("y", function (d) {
 					return y(d.measureNum3) - 5;
 				}).attr("text-anchor", 'middle');
@@ -415,9 +405,6 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		if (vars.measure4.label && vars.measure4.visible) {
 			if (!vars.measure4.type) {
 				// if it is a line
-				// var y3 = d3.scale.linear()
-				// 	.range([height, 0])
-				// 	.domain([0, d3.max(vars.data, function(d) { return d.measureNum4; })]);
 				var line4 = d3.svg.line().x(function (d) {
 					return x(d.dimension);
 				}).y(function (d) {
@@ -433,9 +420,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				}).attr("transform", "translate(" + x.rangeBand() / 2 + ",0)").on("mousemove", function (d, i) {
 					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-						vars.tooltip.scrollTop = -$('#' + vars.tooltip.divid).offset().top;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $('.' + vars.id + '.d3-tip').width() / 2 - 7 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 4));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 4));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -447,23 +434,21 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			} else {
 				// If it is a bar
 				svg.select("#measure4").selectAll(".bar4").data(vars.data).enter().append("rect").attr("class", "bar4").attr("x", function (d) {
-					if (vars.bar.width) {
-						return x(d.dimension) + (x.rangeBand() - vars.bar.width / vars.bar.count) / 2;
-					} else {
-						return x(d.dimension) + x.rangeBand() / vars.bar.count * 3; //3 since this is the 4th dimension// /vars.bar.count
-					}
+					return x(d.dimension) + x.rangeBand() / vars.bar.count * 3;
 				}).attr("width", vars.bar.width ? vars.bar.width / vars.bar.count : x.rangeBand() / vars.bar.count).attr("y", function (d) {
 					return y(d.measureNum4);
 				}).attr("height", function (d) {
 					return height - y(d.measureNum4);
-				}).on('mouseover', function (d, i) {
-					tip.show(d, i);
-					setTimeout(function () {
-						tip.hide();
-					}, 10000);
-				}).on('mouseleave', function (d, i) {
-					tip.hide();
+				}).on("mousemove", function (d, i) {
+					if (vars.tooltip.divid && $("#" + vars.tooltip.divid).length > 0) {
+						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
+					}
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 4));
+				}).on("mouseout", function (d, i) {
+					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
+					tooltip.style("display", "none");
 					if (vars.enableSelections) {
 						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 					}
@@ -472,10 +457,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 					return roundNumber(d.measureNum4);
 				}).attr("x", function (d, i) {
-					// return x(d.dimension) + (x.rangeBand()/(vars.bar.count-1)/vars.bar.count);
-					return x(d.dimension) + x.rangeBand() * 7 / 8;
+					return x(d.dimension) + 7 * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
 				}).attr("y", function (d) {
-					return y(d.measureNum3) - 5;
+					return y(d.measureNum4) - 5;
 				}).attr("text-anchor", 'middle');
 			}
 		}
@@ -523,6 +507,9 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 
 		// TOOLTIPS
+		if ($("." + vars.id + ".d3-tip").length) {
+			$("." + vars.id + ".d3-tip").remove();
+		}
 		var tooltip = d3.select("body").append("div").attr("class", vars.id + " d3-tip");
 		var tooltipHtml = function tooltipHtml(d, i, m) {
 			var display = {
@@ -552,55 +539,6 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 			return html;
 		};
-		// let tip = d3.tip()
-		// 	.attr('class', `${vars.id} d3-tip`)
-		// 	.offset([-10, 0])
-		// 	.extensionData(vars.tooltip)
-		// 	.html(function(d,i) {
-		// 		console.log(d)
-		// 		const displayMeasure1 = roundNumber(d.measureNum);
-		// 		// Flex
-		// 		let html = `
-		// 			<div class="tt-container">
-		// 				<div class="tt-row"><div class="tt-item-header">${d.dimension}</div></div>
-		// 				<div class="tt-row">
-		// 					<div class="tt-item-label"><div class="box measure1"></div>${vars.measure1.label}:</div>
-		// 					<div class="tt-item-value">${displayMeasure1}</div>
-		// 				</div>
-		// 		`;
-		// 		if (vars.measure2.label) {
-		// 			const displayMeasure2 = roundNumber(d.measureNum2);
-		// 			html += `
-		// 				<div class="tt-row">
-		// 					<div class="tt-item-label"><div class="box measure2"></div>${vars.measure2.label}:</div>
-		// 					<div class="tt-item-value">${displayMeasure2}</div>
-		// 				</div>
-		// 			`;
-		// 		}
-		// 		if (vars.measure3.label) {
-		// 			const displayMeasure3 = roundNumber(d.measureNum3);
-		// 			html += `
-		// 				<div class="tt-row">
-		// 					<div class="tt-item-label"><div class="box measure3"></div>${vars.measure3.label}:</div>
-		// 					<div class="tt-item-value">${displayMeasure3}</div>
-		// 				</div>
-		// 			`;
-		// 		}
-		// 		if (vars.measure4.label) {
-		// 			const displayMeasure4 = roundNumber(d.measureNum4);
-		// 			html += `
-		// 				<div class="tt-row">
-		// 					<div class="tt-item-label"><div class="box measure4"></div>${vars.measure4.label}:</div>
-		// 					<div class="tt-item-value">${displayMeasure4}</div>
-		// 				</div>
-		// 			`;
-		// 		}
-		// 		html += `
-		// 			</div>
-		// 		`;
-		// 		return html;
-		// 	})
-		// svg.call(tip);
 
 		// LEGEND
 		if (vars.legend) {
@@ -658,7 +596,8 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			});
 		}
 
-		console.info("%c " + vars.name + ": ", 'color: red', "v " + vars.v);
+		console.info("%c SenseUI-ComboChart " + vars.v + ": ", 'color: red', "#" + vars.id + " Loaded!");
+
 		//needed for export
 		return qlik.Promise.resolve();
 	};
