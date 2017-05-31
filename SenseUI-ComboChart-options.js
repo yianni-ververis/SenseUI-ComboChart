@@ -140,12 +140,69 @@ var options = {
 								}],
 								defaultValue: false
 							},
-							mashupDiv: {
+							tooltipVisible: {
+								type: "boolean",
+								component: "switch",
+								label: "Show Tooltip?",
+								ref: "vars.tooltip.visible",
+								options: [{
+									value: true,
+									label: "On"
+								}, {
+									value: false,
+									label: "Off"
+								}],
+								defaultValue: true
+							},
+							tooltipMashup: {
+								type: "boolean",
+								component: "switch",
+								label: "Will this be in a mashup?",
+								ref: "vars.tooltip.mashup",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: false,
+								show : function(data) {
+									if (data.vars.tooltip && data.vars.tooltip.visible) {
+										return true;
+									}
+								}
+							},
+							tooltipMashupDiv: {
 								type: "string",
 								expression: "none",
 								label: "What is the mashup div id to calculate correct positioning",
-								defaultValue: "main",
-								ref: "vars.tooltip.divid"
+								defaultValue: "maincontent",
+								ref: "vars.tooltip.divid",
+								show : function(data) {
+									if (data.vars.tooltip && data.vars.tooltip.visible && data.vars.tooltip.mashup) {
+										return true;
+									}
+								}
+							},
+							tooltipShowAllMeasures: {
+								type: "boolean",
+								component: "switch",
+								label: "Show All measures in the Tooltip?",
+								ref: "vars.tooltip.showAll",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: false,
+								show : function(data) {
+									if (data.vars.tooltip && data.vars.tooltip.visible) {
+										return true;
+									}
+								}
 							},
 						},
 					},

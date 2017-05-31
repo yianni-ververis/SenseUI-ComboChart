@@ -32,7 +32,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 	me.paint = function ($element, layout) {
 		var vars = $.extend(true, {
-			v: '1.7.4',
+			v: '1.7.6',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -53,9 +53,10 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				label: layout.qHyperCube.qMeasureInfo[3] ? layout.qHyperCube.qMeasureInfo[3].qFallbackTitle : null
 			},
 			tooltip: {
-				// visible: (layout.vars.tooltip && layout.vars.tooltip.visible)?true:false,
+				visible: layout.vars.tooltip && layout.vars.tooltip.visible ? true : false,
 				// dimension: (layout.vars.tooltip && layout.vars.tooltip.dimension)?true:false,
-				// mashup: (layout.vars.tooltip && layout.vars.tooltip.mashup)?true:false,
+				mashup: layout.vars.tooltip && layout.vars.tooltip.mashup ? true : false,
+				showAll: layout.vars.tooltip && layout.vars.tooltip.showAll ? true : false,
 				divid: layout.vars.tooltip && layout.vars.tooltip.divid ? layout.vars.tooltip.divid : 'maincontent',
 				scrollLeft: 0,
 				scrollTop: 0
@@ -221,7 +222,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 					vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 				}
-				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 1));
+				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+					var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+					if (vars.tooltip.showAll) {
+						position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+					}
+					return position;
+				}).style("display", "inline-block").html(tooltipHtml(d, i, 1));
 			}).on("mouseout", function (d, i) {
 				tooltip.style("display", "none");
 			}).on('click', function (d, i) {
@@ -243,7 +250,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 					vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 				}
-				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 1));
+				tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+					var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+					if (vars.tooltip.showAll) {
+						position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+					}
+					return position;
+				}).style("display", "inline-block").html(tooltipHtml(d, i, 1));
 			}).on("mouseout", function (d, i) {
 				tooltip.style("display", "none");
 			}).on('click', function (d, i) {
@@ -252,7 +265,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
 				}
 			});
-			console.log(vars);
+
 			// Add the text on top of the bars
 			svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 				return roundNumber(d.measureNum);
@@ -288,7 +301,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 2));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 2));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -310,7 +329,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 2));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 2));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -323,11 +348,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 					return roundNumber(d.measureNum2);
 				}).attr("x", function (d, i) {
-					// return x(d.dimension)+(x.rangeBand()/vars.bar.count);
-					return x(d.dimension) + 3 * (x.rangeBand() / (vars.bar.count * 2)); // position + hw mnay halfs * (total width of all bars / total halfs)
-					// return x(d.dimension)+x.rangeBand()/(vars.bar.count*2)+(x.rangeBand()/vars.bar.count);
-
-					// return x(d.dimension)+((x.rangeBand()/(vars.bar.count*2))*((vars.bar.count*2)-(vars.bar.count-1)));
+					return x(d.dimension) + 3 * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
 				}).attr("y", function (d) {
 					return y(d.measureNum2) - 5;
 				}).attr("text-anchor", 'middle');
@@ -357,7 +378,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 3));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 3));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -379,7 +406,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 3));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 3));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -422,7 +455,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 4));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 4));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -444,7 +483,13 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
 						vars.tooltip.scrollTop = -$("#" + vars.tooltip.divid).offset().top;
 					}
-					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", vars.tooltip.scrollTop + d3.event.pageY - 70 + "px").style("display", "inline-block").html(tooltipHtml(d, i, 4));
+					tooltip.style("left", vars.tooltip.scrollLeft + d3.event.pageX - $("." + vars.id + ".d3-tip").width() / 2 - 8 + "px").style("top", function () {
+						var position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px";
+						if (vars.tooltip.showAll) {
+							position = vars.tooltip.scrollTop + d3.event.pageY - $("." + vars.id + ".d3-tip").height() - 25 + "px";
+						}
+						return position;
+					}).style("display", "inline-block").html(tooltipHtml(d, i, 4));
 				}).on("mouseout", function (d, i) {
 					tooltip.style("display", "none");
 				}).on('click', function (d, i) {
@@ -535,7 +580,22 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			}
 			// Flex
 			var html = "\n\t\t\t\t<div class=\"tt-container\">\n\t\t\t\t\t<div class=\"tt-row\"><div class=\"tt-item-header\">" + display.title + "</div></div>\n\t\t\t";
-			html += "\n\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + display.bgColor + "\"></div>" + display.label + ":</div>\n\t\t\t\t\t\t<div class=\"tt-item-value\">" + display.value + "</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t";
+			if (vars.tooltip.showAll) {
+				html += "\n\t\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + vars.measure1.color + "\"></div>" + vars.measure1.label + ":</div>\n\t\t\t\t\t\t\t<div class=\"tt-item-value\">" + roundNumber(d.measureNum) + "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t";
+				if (vars.measure2.label && vars.measure2.visible) {
+					html += "\n\t\t\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + vars.measure2.color + "\"></div>" + vars.measure2.label + ":</div>\n\t\t\t\t\t\t\t\t<div class=\"tt-item-value\">" + roundNumber(d.measureNum2) + "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t";
+				}
+				if (vars.measure3.label && vars.measure3.visible) {
+					html += "\n\t\t\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + vars.measure3.color + "\"></div>" + vars.measure3.label + ":</div>\n\t\t\t\t\t\t\t\t<div class=\"tt-item-value\">" + roundNumber(d.measureNum3) + "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t";
+				}
+				if (vars.measure4.label && vars.measure4.visible) {
+					html += "\n\t\t\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + vars.measure4.color + "\"></div>" + vars.measure4.label + ":</div>\n\t\t\t\t\t\t\t\t<div class=\"tt-item-value\">" + roundNumber(d.measureNum4) + "</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t";
+				}
+			} else {
+				html += "\n\t\t\t\t\t\t<div class=\"tt-row\">\n\t\t\t\t\t\t\t<div class=\"tt-item-label\"><div class=\"box\" style=\"background-color: " + display.bgColor + "\"></div>" + display.label + ":</div>\n\t\t\t\t\t\t\t<div class=\"tt-item-value\">" + display.value + "</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t";
+			}
+
+			html += "\n\t\t\t\t</div>\n\t\t\t";
 
 			return html;
 		};
