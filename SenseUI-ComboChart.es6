@@ -81,7 +81,7 @@ define( [
 			vars.margin.bottom += 20;
 		}
 		if (vars.legend) {
-			vars.margin.bottom += 20;
+			vars.margin.bottom += (vars.font.size * 2);
 		}
 		vars.bar.count = 1; // How many bars do we have to distributed the grouped bars evently
 		vars.bar.count += (vars.measure2.type && vars.measure2.visible) ? 1 : 0;
@@ -794,24 +794,111 @@ define( [
 
 		// LEGEND
 		if (vars.legend) {
-			var displayLegend = `<div class="column"><div class="box measure1"></div>${vars.measure1.label}</div>`;
-			if (vars.measure2.label) {
-				displayLegend += `<div class="column"><div class="box measure2"></div>${vars.measure2.label}</div>`;
+			var legendColorBoxSize = (vars.font.size == 10) ? 10 : vars.font.size; // font size default value = 10, without this if-clause-workaround the initial legend painting will be incorrect.
+			var legend;
+
+			function drawLegend() {
+				// Alternative chart Legend implementation		
+				legend = svg.append('g')
+					.attr('class', 'legend')
+					.attr('transform', 'translate(' + 0 + ',' + (height + 30 + legendColorBoxSize) + ')');
+
+				// Measure 1
+				legend.append('rect')
+					.attr('width', legendColorBoxSize)
+					.attr('height', legendColorBoxSize)
+					.style('fill', vars.measure1.color)
+
+				legend.append('text')
+					.attr('x', legendColorBoxSize + legendColorBoxSize / 2)
+					.attr('y', (legendColorBoxSize * 0.85))
+					.text(vars.measure1.label);
+
+				// get the attributes of the measure1 text object, e.g. to get the height and width
+				var Measure1BBox = legend.node().getBBox();
+
+				// Measure 2
+				if (vars.measure2.label) {
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure1BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure2.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure1BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure2.label);
+				}
+
+				// Measure 3
+				if (vars.measure3.label) {
+					var Measure2BBox = legend.node().getBBox();
+
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure2BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure3.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure2BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure3.label);
+				}
+
+				// Measure 4
+				if (vars.measure4.label) {
+					var Measure3BBox = legend.node().getBBox();
+
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure3BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure4.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure3BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure4.label);
+				}
+
+				// get and set the horizontal legend alignment for CENTER and RIGHT
+				if (vars.legendAlignment == "center") {
+					var legendBBox = legend.node().getBBox();
+					var alignment = (vars.width - legendBBox.width) / 2;
+					legend.attr('transform', 'translate(' + (-margin.left + alignment) + ',' + (height + 30 + legendColorBoxSize) + ')');
+				}
+				if (vars.legendAlignment == "right") {
+					var legendBBox = legend.node().getBBox();
+					var alignment = vars.width - legendBBox.width;
+					legend.attr('transform', 'translate(' + (-margin.left - margin.right + alignment) + ',' + (height + 30 + legendColorBoxSize) + ')');
+				}
 			}
-			if (vars.measure3.label) {
-				displayLegend += `<div class="column"><div class="box measure3"></div>${vars.measure3.label}</div>`;
+
+			drawLegend();
+			var legendBBox = legend.node().getBBox();
+			legend.remove();
+			var legendBackground = svg.append('rect')
+				.attr('class', 'legendBackground')
+				.attr('width', legendBBox.width)
+				.attr('height', legendBBox.height)
+				.attr('y', (legendColorBoxSize * (-0.15)))
+				.style('fill', 'white')
+				.attr('transform', 'translate(' + 0 + ',' + (height + 30 + legendColorBoxSize) + ')');
+
+			// get and set the horizontal legend background alignment for CENTER and RIGHT
+			if (vars.legendAlignment == "center") {
+				var alignment = (vars.width - legendBBox.width) / 2;
+				legendBackground.attr('transform', 'translate(' + (-margin.left + alignment) + ',' + (height + 30 + legendColorBoxSize) + ')');
 			}
-			if (vars.measure4.label) {
-				displayLegend += `<div class="column"><div class="box measure4"></div>${vars.measure4.label}</div>`;
+			if (vars.legendAlignment == "right") {
+				var alignment = vars.width - legendBBox.width;
+				legendBackground.attr('transform', 'translate(' + (-margin.left - margin.right + alignment) + ',' + (height + 30 + legendColorBoxSize) + ')');
 			}
-			svg.append("foreignObject")
-				.attr('width', vars.width)
-				.attr('height', 50)
-				.attr("x", -margin.left)
-				.attr("y", height+30)
-			.append("xhtml:div")
-				.attr("class", "legend")
-				.html(displayLegend);
+
+			drawLegend();
+
 		}
 
 		// WRAP LABELS
