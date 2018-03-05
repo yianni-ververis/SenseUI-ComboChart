@@ -24,6 +24,8 @@ A more customizable and Mobile Friendly Combo Chart for Qlik Sense
 #### Bar Chart Settings 
 - Bar/Line Color
 - Bar/LineDot Hover Color
+- Enable Dashed Line
+- Dashed Line Width
 - Bar Border Color
 - Bar Border Hover Color
 - Bar Border Width
