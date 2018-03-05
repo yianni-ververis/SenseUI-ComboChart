@@ -41,7 +41,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.7.7',
+			v: '1.7.8',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -60,6 +60,12 @@ define( [
 			},
 			measure4: {
 				label: (layout.qHyperCube.qMeasureInfo[3]) ? layout.qHyperCube.qMeasureInfo[3].qFallbackTitle : null,
+			},
+			measure5: {
+				label: (layout.qHyperCube.qMeasureInfo[4]) ? layout.qHyperCube.qMeasureInfo[4].qFallbackTitle : null,
+			},
+			measure6: {
+				label: (layout.qHyperCube.qMeasureInfo[5]) ? layout.qHyperCube.qMeasureInfo[5].qFallbackTitle : null,
 			},
 			tooltip: {
 				visible: (layout.vars.tooltip && layout.vars.tooltip.visible)?true:false,
@@ -87,6 +93,8 @@ define( [
 		vars.bar.count += (vars.measure2.type && vars.measure2.visible) ? 1 : 0;
 		vars.bar.count += (vars.measure3.type && vars.measure3.visible) ? 1 : 0;
 		vars.bar.count += (vars.measure4.type && vars.measure4.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure5.type && vars.measure5.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure6.type && vars.measure6.visible) ? 1 : 0;
 		vars.palette = ['#332288','#88CCEE','#DDCC77','#117733','#CC6677','#3399CC','#CC6666','#99CC66','#275378','#B35A01','#B974FD','#993300','#99CCCC','#669933','#898989','#EDA1A1','#C6E2A9','#D4B881','#137D77','#D7C2EC','#FF5500','#15DFDF','#93A77E','#CB5090','#BFBFBF'];
 		vars.legendAlignment = (vars.legendAlignment) ? vars.legendAlignment : 'center'; // Default for the apps that have been created before this version
 
@@ -148,7 +156,11 @@ define( [
 				"measure3": (d[3]) ? d[3].qText : null,
 				"measureNum3": (d[3]) ? d[3].qNum : null,
 				"measure4": (d[4]) ? d[4].qText : null,
-				"measureNum4": (d[4]) ? d[4].qNum : null
+				"measureNum4": (d[4]) ? d[4].qNum : null,
+				"measure5": (d[5]) ? d[5].qText : null,
+				"measureNum5": (d[5]) ? d[5].qNum : null,
+				"measure6": (d[6]) ? d[6].qText : null,
+				"measureNum6": (d[6]) ? d[6].qNum : null
 			}
 		});
 
@@ -196,7 +208,9 @@ define( [
 				d.measureNum,
 				(d.measureNum2) ? d.measureNum2 : 0, 
 				(d.measureNum3) ? d.measureNum3 : 0,
-				(d.measureNum4) ? d.measureNum4 : 0
+				(d.measureNum4) ? d.measureNum4 : 0,
+				(d.measureNum5) ? d.measureNum5 : 0,
+				(d.measureNum6) ? d.measureNum6 : 0
 			);
 		})
 		var  yAxisMin = d3.min(vars.data, function(d) { 
@@ -204,7 +218,9 @@ define( [
 				d.measureNum,
 				(d.measureNum2) ? d.measureNum2 : 0, 
 				(d.measureNum3) ? d.measureNum3 : 0,
-				(d.measureNum4) ? d.measureNum4 : 0
+				(d.measureNum4) ? d.measureNum4 : 0,
+				(d.measureNum5) ? d.measureNum5 : 0,
+				(d.measureNum6) ? d.measureNum6 : 0
 			);
 		})
 		if (vars.yaxis && vars.yaxis.max && vars.yaxis.max > yAxisMax) {
@@ -223,6 +239,8 @@ define( [
 		svg.append("g").attr("id", "measure2");
 		svg.append("g").attr("id", "measure3");
 		svg.append("g").attr("id", "measure4");
+		svg.append("g").attr("id", "measure5");
+		svg.append("g").attr("id", "measure6");
 		svg.append("g").attr("id", "labels");
 
 		svg.select("#grid")
@@ -261,6 +279,15 @@ define( [
 						.attr("class", "line1")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 						.attr("d", line1)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure1.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure1.strokeDashedLine;
+							}
+						});
+
 				// Add the dots
 				svg.select("#measure1")
 					.selectAll("dots")
@@ -369,6 +396,15 @@ define( [
 						.attr("class", "line2")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 						.attr("d", line2)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure2.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure2.strokeDashedLine;
+							}
+						});
+
 				// Add the dots
 				svg.select("#measure2")
 					.selectAll("dots")
@@ -475,6 +511,16 @@ define( [
 						.attr("class", "line3")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 						.attr("d", line3)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure3.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure3.strokeDashedLine;
+							}
+						});
+
+
 				// Add the dots
 				svg.select("#measure3")
 					.selectAll("dots")
@@ -581,6 +627,15 @@ define( [
 						.attr("class", "line4")
 						.attr("transform", `translate(${x.rangeBand()/2},0)`)
 						.attr("d", line4)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure4.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure4.strokeDashedLine;
+							}
+						});
+
 				// Add the dots
 				svg.select("#measure4")
 					.selectAll("dots")
@@ -672,6 +727,236 @@ define( [
 		}
 
 		/* ***********
+		 * MEASURE 5
+		 * ***********/
+		if (vars.measure5.label && vars.measure5.visible) {
+			if (!vars.measure5.type) { // if it is a line
+				var line5 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y(d.measureNum5); })
+				// Create the line
+				svg.select("#measure5")
+					.append("g").attr("id", "line5")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line5")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line5)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure5.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure5.strokeDashedLine;
+							}
+						});
+
+				// Add the dots
+				svg.select("#measure5")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot5")
+						.attr("r", vars.measure5.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y(d.measureNum5); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)	
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+							.style("top", function() {
+								let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+								if (vars.tooltip.showAll) {
+									position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+								}
+								return position
+							})
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,5));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
+			} else { // If it is a bar
+				svg.select("#measure5")
+					.selectAll(".bar5")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar5")
+					.attr("x", function(d) {
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*4);
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum5); })
+					.attr("height", function(d) { return height - y(d.measureNum5); })
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", function() {
+							let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+							if (vars.tooltip.showAll) {
+								position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+							}
+							return position
+						})
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,5));
+					})
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
+					})
+					.on('click', function(d,i) {
+						tooltip.style("display", "none");
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});		
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum5);
+					})
+					.attr("x", function(d, i) { 
+						return x(d.dimension)+(9*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+					})
+					.attr("y", function(d) { return y(d.measureNum5)-5; })
+					.attr("text-anchor", 'middle')
+			}
+		}
+	
+		/* ***********
+		 * MEASURE 6
+		 * ***********/
+		if (vars.measure6.label && vars.measure6.visible) {
+			if (!vars.measure6.type) { // if it is a line
+				var line6 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y(d.measureNum6); })
+				// Create the line
+				svg.select("#measure6")
+					.append("g").attr("id", "line6")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line6")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line6)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure6.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure6.strokeDashedLine;
+							}
+						});
+
+				// Add the dots
+				svg.select("#measure6")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot6")
+						.attr("r", vars.measure6.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y(d.measureNum6); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)	
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+							.style("top", function() {
+								let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+								if (vars.tooltip.showAll) {
+									position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+								}
+								return position
+							})
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,6));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
+			} else { // If it is a bar
+				svg.select("#measure6")
+					.selectAll(".bar6")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar6")
+					.attr("x", function(d) {
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*5);
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum6); })
+					.attr("height", function(d) { return height - y(d.measureNum6); })
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", function() {
+							let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+							if (vars.tooltip.showAll) {
+								position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+							}
+							return position
+						})
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,6));
+					})
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
+					})
+					.on('click', function(d,i) {
+						tooltip.style("display", "none");
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});		
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum6);
+					})
+					.attr("x", function(d, i) { 
+						return x(d.dimension)+(11*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+					})
+					.attr("y", function(d) { return y(d.measureNum6)-5; })
+					.attr("text-anchor", 'middle')
+			}
+		}
+
+		/* ***********
 		 * FOOTER EXPRESSION
 		 * ***********/
 		 if (vars.footerExpression) {
@@ -740,6 +1025,16 @@ define( [
 				display.label = vars.measure4.label;
 				display.value = roundNumber(d.measureNum4);
 			}
+			if (m && m==5) {
+				display.bgColor = vars.measure5.color;
+				display.label = vars.measure5.label;
+				display.value = roundNumber(d.measureNum5);
+			}
+			if (m && m==6) {
+				display.bgColor = vars.measure6.color;
+				display.label = vars.measure6.label;
+				display.value = roundNumber(d.measureNum6);
+			}
 			// Flex
 			let html = `
 				<div class="tt-container">
@@ -773,6 +1068,22 @@ define( [
 							<div class="tt-row">
 								<div class="tt-item-label"><div class="box" style="background-color: ${vars.measure4.color}"></div>${vars.measure4.label}:</div>
 								<div class="tt-item-value">${roundNumber(d.measureNum4)}</div>
+							</div>
+					`;
+				}
+				if (vars.measure5.label && vars.measure5.visible) {
+					html += `
+							<div class="tt-row">
+								<div class="tt-item-label"><div class="box" style="background-color: ${vars.measure5.color}"></div>${vars.measure5.label}:</div>
+								<div class="tt-item-value">${roundNumber(d.measureNum5)}</div>
+							</div>
+					`;
+				}
+				if (vars.measure6.label && vars.measure6.visible) {
+					html += `
+							<div class="tt-row">
+								<div class="tt-item-label"><div class="box" style="background-color: ${vars.measure6.color}"></div>${vars.measure6.label}:</div>
+								<div class="tt-item-value">${roundNumber(d.measureNum6)}</div>
 							</div>
 					`;
 				}
@@ -861,6 +1172,38 @@ define( [
 						.attr('x', (legendColorBoxSize * 2.5 + Measure3BBox.width))
 						.attr('y', (legendColorBoxSize * 0.85))
 						.text(vars.measure4.label);
+				}
+
+				// Measure 5
+				if (vars.measure5.label) {
+					var Measure4BBox = legend.node().getBBox();
+
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure4BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure5.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure4BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure5.label);
+				}
+
+				// Measure 6
+				if (vars.measure6.label) {
+					var Measure5BBox = legend.node().getBBox();
+
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure5BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure6.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure5BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure6.label);
 				}
 
 				// get and set the horizontal legend alignment for CENTER and RIGHT

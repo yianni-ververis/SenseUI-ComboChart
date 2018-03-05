@@ -31,6 +31,16 @@ const cssjs = (vars) => {
 			stroke: ${vars.measure4.color};
 			stroke-width: ${vars.measure4.stroke}px;
 		}
+		#${vars.id}_inner .line5 {
+			fill: none;
+			stroke: ${vars.measure5.color};
+			stroke-width: ${vars.measure5.stroke}px;
+		}
+		#${vars.id}_inner .line6 {
+			fill: none;
+			stroke: ${vars.measure6.color};
+			stroke-width: ${vars.measure6.stroke}px;
+		}
 		#${vars.id}_inner .dot1,
 		#${vars.id}_inner .bar1 {
 			fill: ${vars.measure1.color};
@@ -80,6 +90,30 @@ const cssjs = (vars) => {
 			fill: ${vars.measure4.colorHover};
 			stroke: ${vars.measure4.strokeColorHover};
 		}
+		#${vars.id}_inner .dot5,
+		#${vars.id}_inner .bar5 {
+			fill: ${vars.measure5.color};
+			stroke: ${vars.measure5.color};
+			stroke-width: ${vars.measure5.stroke}px;
+			cursor: pointer;
+		}
+		#${vars.id}_inner .dot5:hover,
+		#${vars.id}_inner .bar5:hover {
+			fill: ${vars.measure5.colorHover};
+			stroke: ${vars.measure5.strokeColorHover};
+		}
+		#${vars.id}_inner .dot6,
+		#${vars.id}_inner .bar6 {
+			fill: ${vars.measure6.color};
+			stroke: ${vars.measure6.color};
+			stroke-width: ${vars.measure6.stroke}px;
+			cursor: pointer;
+		}
+		#${vars.id}_inner .dot6:hover,
+		#${vars.id}_inner .bar6:hover {
+			fill: ${vars.measure6.colorHover};
+			stroke: ${vars.measure6.strokeColorHover};
+		}
 		#${vars.id}_inner .title {
 			font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 		}
@@ -127,6 +161,14 @@ const cssjs = (vars) => {
 		.d3-tip .box.measure4,
 		#${vars.id}_inner .legend .column .box.measure4 {
 			background-color: ${vars.measure4.color};
+		}
+		.d3-tip .box.measure5,
+		#${vars.id}_inner .legend .column .box.measure5 {
+			background-color: ${vars.measure5.color};
+		}
+		.d3-tip .box.measure6,
+		#${vars.id}_inner .legend .column .box.measure6 {
+			background-color: ${vars.measure6.color};
 		}
 		#${vars.id}_inner .grid .tick {
 			stroke: grey;
