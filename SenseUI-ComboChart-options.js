@@ -5,7 +5,7 @@ var options = {
 			qDimensions: [],
 			qMeasures: [],
 			qInitialDataFetch: [{
-				qWidth: 5,
+				qWidth: 7,
 				qHeight: 1000
 			}]
 		}
@@ -22,7 +22,7 @@ var options = {
 			measures: {
 				uses: "measures",
 				min: 1,
-				max: 5
+				max: 7
 			},
 			sorting: {
 				uses: "sorting"
@@ -220,7 +220,7 @@ var options = {
 									label: "Bar"
 								}, {
 									value: false,
-									label: "line"
+									label: "Line"
 								}],
 								defaultValue: true
 							},
@@ -249,15 +249,46 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Color",
-								defaultValue: "#77B62A",
+								defaultValue: "#4477AA",
 								ref: "vars.measure1.strokeColor"
 							},
 							measure1strokeColorHover: {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Hover Color",
-								defaultValue: "#77b62a",
+								defaultValue: "#77B62A",
 								ref: "vars.measure1.strokeColorHover"
+							},
+							measure1solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure1.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure1.type) {
+										return true;
+									}
+								}
+							},
+							measure1strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure1.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure1.type && !data.vars.measure1.solidLine) {
+										return true;
+									}
+								}
 							},
 							measure1radius: {
 								type: "string",
@@ -293,7 +324,7 @@ var options = {
 									label: "Bar"
 								}, {
 									value: false,
-									label: "line"
+									label: "Line"
 								}],
 								defaultValue: false
 							},
@@ -336,15 +367,46 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Color",
-								defaultValue: "#77B62A",
+								defaultValue: "#ec5e08",
 								ref: "vars.measure2.strokeColor"
 							},
 							measure2strokeColorHover: {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Hover Color",
-								defaultValue: "#77b62a",
+								defaultValue: "#77B62A",
 								ref: "vars.measure2.strokeColorHover"
+							},
+							measure2solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure2.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure2.type) {
+										return true;
+									}
+								}
+							},
+							measure2strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure2.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure2.type && !data.vars.measure2.solidLine) {
+										return true;
+									}
+								}
 							},
 							measure2radius: {
 								type: "string",
@@ -379,7 +441,7 @@ var options = {
 									label: "Bar"
 								}, {
 									value: false,
-									label: "line"
+									label: "Line"
 								}],
 								defaultValue: false
 							},
@@ -401,7 +463,7 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Color",
-								defaultValue: "#1F78B4",
+								defaultValue: "#1e9fb3",
 								ref: "vars.measure3.color"
 							},
 							measure3colorHover: {
@@ -422,15 +484,46 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Color",
-								defaultValue: "#77B62A",
+								defaultValue: "#1e9fb3",
 								ref: "vars.measure3.strokeColor"
 							},
 							measure3strokeColorHover: {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Hover Color",
-								defaultValue: "#77b62a",
+								defaultValue: "#77B62A",
 								ref: "vars.measure3.strokeColorHover"
+							},
+							measure3solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure3.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure3.type) {
+										return true;
+									}
+								}
+							},
+							measure3strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure3.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure3.type && !data.vars.measure3.solidLine) {
+										return true;
+									}
+								}
 							},
 							measure3radius: {
 								type: "string",
@@ -465,7 +558,7 @@ var options = {
 									label: "Bar"
 								}, {
 									value: false,
-									label: "line"
+									label: "Line"
 								}],
 								defaultValue: false
 							},
@@ -487,7 +580,7 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Color",
-								defaultValue: "#117733",
+								defaultValue: "#19ae4b",
 								ref: "vars.measure4.color"
 							},
 							measure4colorHover: {
@@ -508,7 +601,7 @@ var options = {
 								type: "string",
 								expression: "none",
 								label: "Line/Bar Border Color",
-								defaultValue: "#117733",
+								defaultValue: "#19ae4b",
 								ref: "vars.measure4.strokeColor"
 							},
 							measure4strokeColorHover: {
@@ -517,6 +610,37 @@ var options = {
 								label: "Line/Bar Border Hover Color",
 								defaultValue: "#77B62A",
 								ref: "vars.measure4.strokeColorHover"
+							},
+							measure4solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure4.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure4.type) {
+										return true;
+									}
+								}
+							},
+							measure4strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure4.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure4.type && !data.vars.measure4.solidLine) {
+										return true;
+									}
+								}
 							},
 							measure4radius: {
 								type: "string",
@@ -534,9 +658,243 @@ var options = {
 					},
 					measure5: {
 						type: "items",
-						label: "Measure 5 - Footer KPI",
+						label: "Measure 5",
 						show : function(data) {
 							if (data.qHyperCubeDef.qMeasures.length>=5) {
+								return true;
+							}
+						},
+						items: {
+							measure5type: {
+								type: "boolean",
+								component: "switch",
+								label: "Bar / Line",
+								ref: "vars.measure5.type",
+								options: [{
+									value: true,
+									label: "Bar"
+								}, {
+									value: false,
+									label: "Line"
+								}],
+								defaultValue: false
+							},
+							measure5visible: {
+								type: "boolean",
+								component: "switch",
+								label: "Visible",
+								ref: "vars.measure5.visible",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: true
+							},
+							measure5color: {
+								type: "string",
+								expression: "none",
+								label: "Color",
+								defaultValue: "#ff4040",
+								ref: "vars.measure5.color"
+							},
+							measure5colorHover: {
+								type: "string",
+								expression: "none",
+								label: "Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure5.colorHover"
+							},
+							measure5stroke: {
+								type: "string",
+								expression: "none",
+								label: "Line Width/Bar Border",
+								defaultValue: "1",
+								ref: "vars.measure5.stroke"
+							},
+							measure5strokeColor: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Color",
+								defaultValue: "#ff4040",
+								ref: "vars.measure5.strokeColor"
+							},
+							measure5strokeColorHover: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure5.strokeColorHover"
+							},
+							measure5solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure5.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure5.type) {
+										return true;
+									}
+								}
+							},
+							measure5strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure5.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure5.type && !data.vars.measure5.solidLine) {
+										return true;
+									}
+								}
+							},
+							measure5radius: {
+								type: "string",
+								expression: "none",
+								label: "Dot Radius",
+								defaultValue: "5",
+								ref: "vars.measure5.radius",
+								show : function(data) {
+									if (!data.vars.measure5.type) {
+										return true;
+									}
+								}
+							},
+						}
+					},
+					measure6: {
+						type: "items",
+						label: "Measure 6",
+						show : function(data) {
+							if (data.qHyperCubeDef.qMeasures.length>=6) {
+								return true;
+							}
+						},
+						items: {
+							measure6type: {
+								type: "boolean",
+								component: "switch",
+								label: "Bar / Line",
+								ref: "vars.measure6.type",
+								options: [{
+									value: true,
+									label: "Bar"
+								}, {
+									value: false,
+									label: "Line"
+								}],
+								defaultValue: false
+							},
+							measure6visible: {
+								type: "boolean",
+								component: "switch",
+								label: "Visible",
+								ref: "vars.measure6.visible",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: true
+							},
+							measure6color: {
+								type: "string",
+								expression: "none",
+								label: "Color",
+								defaultValue: "#ffc342",
+								ref: "vars.measure6.color"
+							},
+							measure6colorHover: {
+								type: "string",
+								expression: "none",
+								label: "Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure6.colorHover"
+							},
+							measure6stroke: {
+								type: "string",
+								expression: "none",
+								label: "Line Width/Bar Border",
+								defaultValue: "1",
+								ref: "vars.measure6.stroke"
+							},
+							measure6strokeColor: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Color",
+								defaultValue: "#ffc342",
+								ref: "vars.measure6.strokeColor"
+							},
+							measure6strokeColorHover: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure6.strokeColorHover"
+							},
+							measure6solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure6.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure6.type) {
+										return true;
+									}
+								}
+							},
+							measure6strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure6.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure6.type && !data.vars.measure6.solidLine) {
+										return true;
+									}
+								}
+							},
+							measure6radius: {
+								type: "string",
+								expression: "none",
+								label: "Dot Radius",
+								defaultValue: "5",
+								ref: "vars.measure6.radius",
+								show : function(data) {
+									if (!data.vars.measure6.type) {
+										return true;
+									}
+								}
+							},
+						}
+					},
+					measure7: {
+						type: "items",
+						label: "Measure 7 - Footer KPI",
+						show : function(data) {
+							if (data.qHyperCubeDef.qMeasures.length>=7) {
 								return true;
 							}
 						},
