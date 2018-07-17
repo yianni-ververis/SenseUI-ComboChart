@@ -9,6 +9,8 @@
  * @param {boolean} vars.enableSelections:
  * @description
  * A simple Combo Chart
+ * @version 1.9: 7 Measures possible; Measure/Bar 2  has the special grouping feature for Measure/Bar 1
+ * @version 1.8: 6 Measures possible and the option for dashed lines
  * @version 1.7: Legend Alignment
  * @version 1.4: Add text on top of the bars
  * @version 1.3: Distribute Bars evenly
@@ -41,7 +43,7 @@ define( [
 
 	me.paint = function($element,layout) {
 		var vars = $.extend(true,{
-			v: '1.7.8',
+			v: '1.9.1',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -67,6 +69,9 @@ define( [
 			measure6: {
 				label: (layout.qHyperCube.qMeasureInfo[5]) ? layout.qHyperCube.qMeasureInfo[5].qFallbackTitle : null,
 			},
+			measure7: {
+				label: (layout.qHyperCube.qMeasureInfo[6]) ? layout.qHyperCube.qMeasureInfo[6].qFallbackTitle : null,
+			},
 			tooltip: {
 				visible: (layout.vars.tooltip && layout.vars.tooltip.visible)?true:false,
 				// dimension: (layout.vars.tooltip && layout.vars.tooltip.dimension)?true:false,
@@ -90,14 +95,62 @@ define( [
 			vars.margin.bottom += (vars.font.size * 2);
 		}
 		vars.bar.count = 1; // How many bars do we have to distributed the grouped bars evently
-		vars.bar.count += (vars.measure2.type && vars.measure2.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure2.type && vars.measure2.visible && !vars.measure2.specialBarGrouping) ? 1 : 0; 
 		vars.bar.count += (vars.measure3.type && vars.measure3.visible) ? 1 : 0;
 		vars.bar.count += (vars.measure4.type && vars.measure4.visible) ? 1 : 0;
 		vars.bar.count += (vars.measure5.type && vars.measure5.visible) ? 1 : 0;
 		vars.bar.count += (vars.measure6.type && vars.measure6.visible) ? 1 : 0;
+		vars.bar.count += (vars.measure7.type && vars.measure7.visible) ? 1 : 0; 
 		vars.palette = ['#332288','#88CCEE','#DDCC77','#117733','#CC6677','#3399CC','#CC6666','#99CC66','#275378','#B35A01','#B974FD','#993300','#99CCCC','#669933','#898989','#EDA1A1','#C6E2A9','#D4B881','#137D77','#D7C2EC','#FF5500','#15DFDF','#93A77E','#CB5090','#BFBFBF'];
 		vars.legendAlignment = (vars.legendAlignment) ? vars.legendAlignment : 'center'; // Default for the apps that have been created before this version
 
+		/*
+			inputMeasure: integer, e.g. for measure 5 -> input 4
+			inputOption: x-value for 'bar' or 'bar_label'
+		*/
+		function visibleBarCounter(inputMeasure, inputOption) {
+			var barCount = 0; 
+			var barLabelCount = 1;
+
+			if(inputMeasure >= 1 && vars.measure2.type && vars.measure2.visible && !vars.measure2.specialBarGrouping) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+			if(inputMeasure >= 2 && vars.measure3.type && vars.measure3.visible) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+			if(inputMeasure >= 3 && vars.measure4.type && vars.measure4.visible) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+			if(inputMeasure >= 4 && vars.measure5.type && vars.measure5.visible) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+			if(inputMeasure >= 5 && vars.measure6.type && vars.measure6.visible) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+			if(inputMeasure >= 6 && vars.measure7.type && vars.measure7.visible) {
+				barCount+=1;
+				barLabelCount += 2;
+			}
+
+			if(inputOption == 'bar') {
+				return barCount;
+			}
+			else if (inputOption == 'bar_label') {
+				return barLabelCount;
+			}
+			/*if(inputMeasure >= vars.bar.count) {
+				return inputMeasure - (inputMeasure - vars.bar.count) - 1;
+			}
+			else {
+				return inputMeasure;
+			}
+			*/
+		}
 		// CSS
 		vars.css = cssjs(vars)
 		// TEMPLATE
@@ -160,7 +213,9 @@ define( [
 				"measure5": (d[5]) ? d[5].qText : null,
 				"measureNum5": (d[5]) ? d[5].qNum : null,
 				"measure6": (d[6]) ? d[6].qText : null,
-				"measureNum6": (d[6]) ? d[6].qNum : null
+				"measureNum6": (d[6]) ? d[6].qNum : null,
+				"measure7": (d[7]) ? d[7].qText : null,
+				"measureNum7": (d[7]) ? d[7].qNum : null
 			}
 		});
 
@@ -210,7 +265,8 @@ define( [
 				(d.measureNum3) ? d.measureNum3 : 0,
 				(d.measureNum4) ? d.measureNum4 : 0,
 				(d.measureNum5) ? d.measureNum5 : 0,
-				(d.measureNum6) ? d.measureNum6 : 0
+				(d.measureNum6) ? d.measureNum6 : 0,
+				(d.measureNum7) ? d.measureNum7 : 0
 			);
 		})
 		var  yAxisMin = d3.min(vars.data, function(d) { 
@@ -220,7 +276,8 @@ define( [
 				(d.measureNum3) ? d.measureNum3 : 0,
 				(d.measureNum4) ? d.measureNum4 : 0,
 				(d.measureNum5) ? d.measureNum5 : 0,
-				(d.measureNum6) ? d.measureNum6 : 0
+				(d.measureNum6) ? d.measureNum6 : 0,
+				(d.measureNum7) ? d.measureNum7 : 0
 			);
 		})
 		if (vars.yaxis && vars.yaxis.max && vars.yaxis.max > yAxisMax) {
@@ -241,6 +298,7 @@ define( [
 		svg.append("g").attr("id", "measure4");
 		svg.append("g").attr("id", "measure5");
 		svg.append("g").attr("id", "measure6");
+		svg.append("g").attr("id", "measure7");
 		svg.append("g").attr("id", "labels");
 
 		svg.select("#grid")
@@ -372,13 +430,13 @@ define( [
 					return roundNumber(d.measureNum);
 				})
 				.attr("x", function(d, i) { 
-					// return (x(d.dimension)+x.rangeBand()/(vars.bar.count*2));
-					// return x(d.dimension)+x.rangeBand()/(1*(vars.bar.count*2)); // position + total width of all bars / total halfs
-					return x(d.dimension)+(1*(x.rangeBand()/(vars.bar.count*2))); // position + total width of all bars / total halfs
+					return x(d.dimension)+(1 * (x.rangeBand()/(vars.bar.count*2))); // position + total width of all bars / total halfs
 				})
 				.attr("y", function(d) { return y(d.measureNum)-5; })
 				.attr("text-anchor", 'middle')
 		}
+
+		
 
 		/* ***********
 		 * MEASURE 2
@@ -447,51 +505,65 @@ define( [
 					.data(vars.data)
 					.enter().append("rect")
 					.attr("class", "bar2")
-					.attr("x", function(d) { 
-						return x(d.dimension)+(x.rangeBand()/vars.bar.count);
+					.attr("x", function(d) {
+						if (!vars.measure2.specialBarGrouping) {
+							return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(1, 'bar')));
+						}
+						else if (vars.measure2.specialBarGrouping) {
+							return x(d.dimension);
+						}		
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
-					.attr("y", function(d) { return y(d.measureNum2); })
-					.attr("height", function(d) { return height - y(d.measureNum2); })	
-				.on("mousemove", function(d,i){
-					if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
-						vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
-						vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
-					}
-					tooltip
-					.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
-					.style("top", function() {
-						let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
-						if (vars.tooltip.showAll) {
-							position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+					.attr("y", function(d) { 
+						if (!vars.measure2.specialBarGrouping || (vars.measure2.specialBarGrouping && !vars.measure2.specialBarGroupingAlignment)) {
+							return y(d.measureNum2);
 						}
-						return position
+						else if (vars.measure2.specialBarGrouping && vars.measure2.specialBarGroupingAlignment) {
+							return y(d.measureNum); 
+						}
+					})	
+					.attr("height", function(d) { return height - y(d.measureNum2); })	
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", function() {
+							let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+							if (vars.tooltip.showAll) {
+								position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+							}
+							return position
+						})
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,2));
 					})
-					.style("display", "inline-block")
-					.html(tooltipHtml(d,i,2));
-				})
-				.on("mouseout", function(d,i){ 
-					tooltip.style("display", "none");
-				})
-				.on('click', function(d,i) {
-					tooltip.style("display", "none");
-					if (vars.enableSelections) {
-						vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
-					}
-				});		
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
+					})
+					.on('click', function(d,i) {
+						tooltip.style("display", "none");
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum2);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(3*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum2)-5; })
-					.attr("text-anchor", 'middle')
+				if(!vars.measure2.specialBarGrouping) {
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum2);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(1, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum2)-5; })
+						.attr("text-anchor", 'middle')
+				}
 			}
 		}
 
@@ -564,7 +636,7 @@ define( [
 					.enter().append("rect")
 					.attr("class", "bar3")
 					.attr("x", function(d) {
-						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*2); 
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(2, 'bar')));
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum3); })
@@ -604,7 +676,7 @@ define( [
 						return roundNumber(d.measureNum3);
 					})
 					.attr("x", function(d, i) { 
-						return x(d.dimension)+(5*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						return x(d.dimension)+(visibleBarCounter(2, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum3)-5; })
 					.attr("text-anchor", 'middle')
@@ -679,7 +751,7 @@ define( [
 					.enter().append("rect")
 					.attr("class", "bar4")
 					.attr("x", function(d) {
-						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*3);
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(3, 'bar')));
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum4); })
@@ -719,7 +791,7 @@ define( [
 						return roundNumber(d.measureNum4);
 					})
 					.attr("x", function(d, i) { 
-						return x(d.dimension)+(7*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						return x(d.dimension)+(visibleBarCounter(3, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum4)-5; })
 					.attr("text-anchor", 'middle')
@@ -794,7 +866,7 @@ define( [
 					.enter().append("rect")
 					.attr("class", "bar5")
 					.attr("x", function(d) {
-						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*4);
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(4, 'bar')));
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum5); })
@@ -834,7 +906,7 @@ define( [
 						return roundNumber(d.measureNum5);
 					})
 					.attr("x", function(d, i) { 
-						return x(d.dimension)+(9*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						return x(d.dimension)+(visibleBarCounter(4, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum5)-5; })
 					.attr("text-anchor", 'middle')
@@ -909,7 +981,7 @@ define( [
 					.enter().append("rect")
 					.attr("class", "bar6")
 					.attr("x", function(d) {
-						return x(d.dimension)+((x.rangeBand()/vars.bar.count)*5);
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(5, 'bar')));
 					})
 					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
 					.attr("y", function(d) { return y(d.measureNum6); })
@@ -949,9 +1021,124 @@ define( [
 						return roundNumber(d.measureNum6);
 					})
 					.attr("x", function(d, i) { 
-						return x(d.dimension)+(11*(x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						return x(d.dimension)+(visibleBarCounter(5, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
 					})
 					.attr("y", function(d) { return y(d.measureNum6)-5; })
+					.attr("text-anchor", 'middle')
+			}
+		}
+
+		/* ***********
+		 * MEASURE 7
+		 * ***********/
+		if (vars.measure7.label && vars.measure7.visible) {
+			if (!vars.measure7.type) { // if it is a line
+				var line7 = d3.svg.line()
+					.x(function(d) { return x(d.dimension); })
+					.y(function(d) { return y(d.measureNum7); })
+				// Create the line
+				svg.select("#measure7")
+					.append("g").attr("id", "line7")
+					.append("path")
+					.datum(vars.data)
+						.attr("class", "line7")
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)
+						.attr("d", line7)
+						.attr("stroke-dasharray", function(d,i) {
+							if(vars.measure7.solidLine) {
+								return 0;
+							}
+							else {
+								return vars.measure7.strokeDashedLine;
+							}
+						});
+
+				// Add the dots
+				svg.select("#measure7")
+					.selectAll("dots")
+					.data(vars.data)
+					.enter().append("circle")
+						.attr("class", "dot7")
+						.attr("r", vars.measure7.radius)
+						.attr("cx", function(d) { return x(d.dimension); })
+						.attr("cy", function(d) { return y(d.measureNum7); })
+						.attr("transform", `translate(${x.rangeBand()/2},0)`)	
+						.on("mousemove", function(d,i){
+							if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+								vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+								vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+							}
+							tooltip
+							.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+							.style("top", function() {
+								let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+								if (vars.tooltip.showAll) {
+									position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+								}
+								return position
+							})
+							.style("display", "inline-block")
+							.html(tooltipHtml(d,i,7));
+						})
+						.on("mouseout", function(d,i){ 
+							tooltip.style("display", "none");
+						})
+						.on('click', function(d,i) {
+							tooltip.style("display", "none");
+							if (vars.enableSelections) {
+								vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+							}
+						});
+			} else { // If it is a bar
+				svg.select("#measure7")
+					.selectAll(".bar7")
+					.data(vars.data)
+					.enter().append("rect")
+					.attr("class", "bar7")
+					.attr("x", function(d) {
+						return x(d.dimension)+((x.rangeBand()/vars.bar.count) * (visibleBarCounter(6, 'bar')));
+					})
+					.attr("width", (vars.bar.width) ? vars.bar.width/vars.bar.count : x.rangeBand()/vars.bar.count)
+					.attr("y", function(d) { return y(d.measureNum7); })
+					.attr("height", function(d) { return height - y(d.measureNum7); })
+					.on("mousemove", function(d,i){
+						if (vars.tooltip.divid && $(`#${vars.tooltip.divid}`).length>0) {
+							vars.tooltip.scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft
+							vars.tooltip.scrollTop = -$(`#${vars.tooltip.divid}`).offset().top;
+						}
+						tooltip
+						.style("left", vars.tooltip.scrollLeft + d3.event.pageX - ($(`.${vars.id}.d3-tip`).width() / 2) - 8 + "px")
+						.style("top", function() {
+							let position = vars.tooltip.scrollTop + d3.event.pageY - 70 + "px"
+							if (vars.tooltip.showAll) {
+								position = vars.tooltip.scrollTop + d3.event.pageY - $(`.${vars.id}.d3-tip`).height() - 25 + "px"
+							}
+							return position
+						})
+						.style("display", "inline-block")
+						.html(tooltipHtml(d,i,7));
+					})
+					.on("mouseout", function(d,i){ 
+						tooltip.style("display", "none");
+					})
+					.on('click', function(d,i) {
+						tooltip.style("display", "none");
+						if (vars.enableSelections) {
+							vars.this.backendApi.selectValues(0, [d.qElemNumber], true);
+						}
+					});		
+				// Add the text on the bars
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum7);
+					})
+					.attr("x", function(d, i) { 
+						return x(d.dimension)+(visibleBarCounter(6, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+					})
+					.attr("y", function(d) { return y(d.measureNum7)-5; })
 					.attr("text-anchor", 'middle')
 			}
 		}
@@ -1035,6 +1222,11 @@ define( [
 				display.label = vars.measure6.label;
 				display.value = roundNumber(d.measureNum6);
 			}
+			if (m && m==7) {
+				display.bgColor = vars.measure7.color;
+				display.label = vars.measure7.label;
+				display.value = roundNumber(d.measureNum7);
+			}
 			// Flex
 			let html = `
 				<div class="tt-container">
@@ -1087,6 +1279,14 @@ define( [
 							</div>
 					`;
 				}
+				if (vars.measure7.label && vars.measure7.visible) {
+					html += `
+							<div class="tt-row">
+								<div class="tt-item-label"><div class="box" style="background-color: ${vars.measure7.color}"></div>${vars.measure7.label}:</div>
+								<div class="tt-item-value">${roundNumber(d.measureNum7)}</div>
+							</div>
+					`;
+				}
 			} else {
 				html += `
 						<div class="tt-row">
@@ -1129,7 +1329,7 @@ define( [
 				var Measure1BBox = legend.node().getBBox();
 
 				// Measure 2
-				if (vars.measure2.label) {
+				if (vars.measure2.label && vars.measure2.visible) {
 					legend.append('rect')
 						.attr('x', (legendColorBoxSize + Measure1BBox.width))
 						.attr('width', legendColorBoxSize)
@@ -1143,7 +1343,7 @@ define( [
 				}
 
 				// Measure 3
-				if (vars.measure3.label) {
+				if (vars.measure3.label && vars.measure3.visible) {
 					var Measure2BBox = legend.node().getBBox();
 
 					legend.append('rect')
@@ -1159,7 +1359,7 @@ define( [
 				}
 
 				// Measure 4
-				if (vars.measure4.label) {
+				if (vars.measure4.label && vars.measure4.visible) {
 					var Measure3BBox = legend.node().getBBox();
 
 					legend.append('rect')
@@ -1175,7 +1375,7 @@ define( [
 				}
 
 				// Measure 5
-				if (vars.measure5.label) {
+				if (vars.measure5.label && vars.measure5.visible) {
 					var Measure4BBox = legend.node().getBBox();
 
 					legend.append('rect')
@@ -1191,7 +1391,7 @@ define( [
 				}
 
 				// Measure 6
-				if (vars.measure6.label) {
+				if (vars.measure6.label && vars.measure6.visible) {
 					var Measure5BBox = legend.node().getBBox();
 
 					legend.append('rect')
@@ -1204,6 +1404,22 @@ define( [
 						.attr('x', (legendColorBoxSize * 2.5 + Measure5BBox.width))
 						.attr('y', (legendColorBoxSize * 0.85))
 						.text(vars.measure6.label);
+				}
+
+				// Measure 7
+				if (vars.measure7.label && vars.measure7.visible) {
+					var Measure6BBox = legend.node().getBBox();
+
+					legend.append('rect')
+						.attr('x', (legendColorBoxSize + Measure6BBox.width))
+						.attr('width', legendColorBoxSize)
+						.attr('height', legendColorBoxSize)
+						.style('fill', vars.measure7.color);
+
+					legend.append('text')
+						.attr('x', (legendColorBoxSize * 2.5 + Measure6BBox.width))
+						.attr('y', (legendColorBoxSize * 0.85))
+						.text(vars.measure7.label);
 				}
 
 				// get and set the horizontal legend alignment for CENTER and RIGHT
@@ -1284,7 +1500,7 @@ define( [
 			});			
 		}
 
-		console.info(`%c SenseUI-ComboChart ${vars.v}: `, 'color: red', `#${vars.id} Loaded!`)
+		//console.info(`%c SenseUI-ComboChart ${vars.v}: `, 'color: red', `#${vars.id} Loaded!`)
 		
 		//needed for export
 		return qlik.Promise.resolve()
