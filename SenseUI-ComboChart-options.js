@@ -5,7 +5,7 @@ var options = {
 			qDimensions: [],
 			qMeasures: [],
 			qInitialDataFetch: [{
-				qWidth: 7,
+				qWidth: 8,
 				qHeight: 1000
 			}]
 		}
@@ -22,11 +22,19 @@ var options = {
 			measures: {
 				uses: "measures",
 				min: 1,
-				max: 7
+				max: 8
 			},
 			sorting: {
 				uses: "sorting"
 			},
+			addons: {  
+				uses: "addons",  
+				items: {  
+					dataHandling: {  
+						uses: "dataHandling"  
+					}  
+				}  
+			},  			
 			settings : {
 				uses : "settings",
 				items: {
@@ -420,6 +428,58 @@ var options = {
 									}
 								}
 							},
+							measure2specialBarGrouping: {
+								type: "boolean",
+								component: "switch",
+								label: "Special Grouping with Bar / Measure 1",
+								ref: "vars.measure2.specialBarGrouping",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: false,
+								show : function(data) {
+									if (data.vars.measure2.type) {
+										return true;
+									}
+								}
+							},
+							/*
+							measure2specialBarGroupingLinkedBar: {
+								type: "string",
+								expression: "none",
+								label: "Linked Bar",
+								defaultValue: "1",
+								ref: "vars.measure2.specialBarGroupingLinkedBar",
+								show : function(data) {
+									if (data.vars.measure2.type && data.vars.measure2.specialBarGrouping) {
+										return true;
+									}
+								}
+							},
+							*/
+							measure2specialBarGroupingAlignment: {
+								type: "boolean",
+								component: "switch",
+								label: "Grouping Alignment",
+								ref: "vars.measure2.specialBarGroupingAlignment",
+								options: [{
+									value: true,
+									label: "Top"
+								}, {
+									value: false,
+									label: "Bottom"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (data.vars.measure2.type && data.vars.measure2.specialBarGrouping) {
+										return true;
+									}
+								}
+							}	
 						}
 					},
 					measure3: {
@@ -892,9 +952,126 @@ var options = {
 					},
 					measure7: {
 						type: "items",
-						label: "Measure 7 - Footer KPI",
+						label: "Measure 7",
 						show : function(data) {
 							if (data.qHyperCubeDef.qMeasures.length>=7) {
+								return true;
+							}
+						},
+						items: {
+							measure7type: {
+								type: "boolean",
+								component: "switch",
+								label: "Bar / Line",
+								ref: "vars.measure7.type",
+								options: [{
+									value: true,
+									label: "Bar"
+								}, {
+									value: false,
+									label: "Line"
+								}],
+								defaultValue: false
+							},
+							measure7visible: {
+								type: "boolean",
+								component: "switch",
+								label: "Visible",
+								ref: "vars.measure7.visible",
+								options: [{
+									value: true,
+									label: "Yes"
+								}, {
+									value: false,
+									label: "No"
+								}],
+								defaultValue: true
+							},
+							measure7color: {
+								type: "string",
+								expression: "none",
+								label: "Color",
+								defaultValue: "#bebebe",
+								ref: "vars.measure7.color"
+							},
+							measure7colorHover: {
+								type: "string",
+								expression: "none",
+								label: "Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure7.colorHover"
+							},
+							measure7stroke: {
+								type: "string",
+								expression: "none",
+								label: "Line Width/Bar Border",
+								defaultValue: "1",
+								ref: "vars.measure7.stroke"
+							},
+							measure7strokeColor: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Color",
+								defaultValue: "#bebebe",
+								ref: "vars.measure7.strokeColor"
+							},
+							measure7strokeColorHover: {
+								type: "string",
+								expression: "none",
+								label: "Line/Bar Border Hover Color",
+								defaultValue: "#77B62A",
+								ref: "vars.measure7.strokeColorHover"
+							},
+							measure7solidLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Solid Line / Dashed Line",
+								ref: "vars.measure7.solidLine",
+								options: [{
+									value: true,
+									label: "Solid"
+								}, {
+									value: false,
+									label: "Dashed"
+								}],
+								defaultValue: true,
+								show : function(data) {
+									if (!data.vars.measure7.type) {
+										return true;
+									}
+								}
+							},
+							measure7strokeDashedLine: {
+								type: "string",
+								expression: "none",
+								label: "Dashed Line Width",
+								defaultValue: "3",
+								ref: "vars.measure7.strokeDashedLine",
+								show : function(data) {
+									if (!data.vars.measure7.type && !data.vars.measure7.solidLine) {
+										return true;
+									}
+								}
+							},
+							measure7radius: {
+								type: "string",
+								expression: "none",
+								label: "Dot Radius",
+								defaultValue: "5",
+								ref: "vars.measure7.radius",
+								show : function(data) {
+									if (!data.vars.measure7.type) {
+										return true;
+									}
+								}
+							},
+						}
+					},
+					measure8: {
+						type: "items",
+						label: "Measure 8 - Footer KPI",
+						show : function(data) {
+							if (data.qHyperCubeDef.qMeasures.length>=8) {
 								return true;
 							}
 						},

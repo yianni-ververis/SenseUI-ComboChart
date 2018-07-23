@@ -41,6 +41,11 @@ const cssjs = (vars) => {
 			stroke: ${vars.measure6.color};
 			stroke-width: ${vars.measure6.stroke}px;
 		}
+		#${vars.id}_inner .line7 {
+			fill: none;
+			stroke: ${vars.measure7.color};
+			stroke-width: ${vars.measure7.stroke}px;
+		}
 		#${vars.id}_inner .dot1,
 		#${vars.id}_inner .bar1 {
 			fill: ${vars.measure1.color};
@@ -114,6 +119,18 @@ const cssjs = (vars) => {
 			fill: ${vars.measure6.colorHover};
 			stroke: ${vars.measure6.strokeColorHover};
 		}
+		#${vars.id}_inner .dot7,
+		#${vars.id}_inner .bar7 {
+			fill: ${vars.measure7.color};
+			stroke: ${vars.measure7.color};
+			stroke-width: ${vars.measure7.stroke}px;
+			cursor: pointer;
+		}
+		#${vars.id}_inner .dot7:hover,
+		#${vars.id}_inner .bar7:hover {
+			fill: ${vars.measure7.colorHover};
+			stroke: ${vars.measure7.strokeColorHover};
+		}
 		#${vars.id}_inner .title {
 			font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 		}
@@ -169,6 +186,10 @@ const cssjs = (vars) => {
 		.d3-tip .box.measure6,
 		#${vars.id}_inner .legend .column .box.measure6 {
 			background-color: ${vars.measure6.color};
+		}
+		.d3-tip .box.measure7,
+		#${vars.id}_inner .legend .column .box.measure7 {
+			background-color: ${vars.measure7.color};
 		}
 		#${vars.id}_inner .grid .tick {
 			stroke: grey;
