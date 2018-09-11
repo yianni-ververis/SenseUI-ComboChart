@@ -212,6 +212,20 @@ var options = {
 									}
 								}
 							},
+							displayLegend: {
+								type: "boolean",
+								component: "switch",
+								label: "Display Text on Bars",
+								ref: "vars.bar.text",
+								options: [{
+									value: true,
+									label: "Show"
+								}, {
+									value: false,
+									label: "Hide"
+								}],
+								defaultValue: true
+							},							
 						},
 					},
 					measure1: {
