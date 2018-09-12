@@ -422,18 +422,20 @@ define( [
 				});	
 				
 			// Add the text on top of the bars
-			svg.select("#labels")
-				.selectAll(".text")
-				.data(vars.data)
-				.enter().append("text")
-				.text(function(d) {
-					return roundNumber(d.measureNum);
-				})
-				.attr("x", function(d, i) { 
-					return x(d.dimension)+(1 * (x.rangeBand()/(vars.bar.count*2))); // position + total width of all bars / total halfs
-				})
-				.attr("y", function(d) { return y(d.measureNum)-5; })
-				.attr("text-anchor", 'middle')
+			if(layout.vars.bar.text){
+				svg.select("#labels")
+					.selectAll(".text")
+					.data(vars.data)
+					.enter().append("text")
+					.text(function(d) {
+						return roundNumber(d.measureNum);
+					})
+					.attr("x", function(d, i) { 
+						return x(d.dimension)+(1 * (x.rangeBand()/(vars.bar.count*2))); // position + total width of all bars / total halfs
+					})
+					.attr("y", function(d) { return y(d.measureNum)-5; })
+					.attr("text-anchor", 'middle');
+			}
 		}
 
 		
@@ -550,7 +552,7 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				if(!vars.measure2.specialBarGrouping) {
+				if(!vars.measure2.specialBarGrouping & layout.vars.bar.text) {
 					svg.select("#labels")
 						.selectAll(".text")
 						.data(vars.data)
@@ -668,18 +670,20 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum3);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(visibleBarCounter(2, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum3)-5; })
+				if(layout.vars.bar.text){
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum3);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(2, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum3)-5; })
 					.attr("text-anchor", 'middle')
+				}
 			}
 		}
 
@@ -783,18 +787,20 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum4);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(visibleBarCounter(3, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum4)-5; })
-					.attr("text-anchor", 'middle')
+				if(layout.vars.bar.text){
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum4);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(3, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum4)-5; })
+						.attr("text-anchor", 'middle')
+				}
 			}
 		}
 
@@ -898,18 +904,20 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum5);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(visibleBarCounter(4, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum5)-5; })
-					.attr("text-anchor", 'middle')
+				if(layout.vars.bar.text){
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum5);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(4, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum5)-5; })
+						.attr("text-anchor", 'middle')
+				}
 			}
 		}
 	
@@ -1013,18 +1021,20 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum6);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(visibleBarCounter(5, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum6)-5; })
-					.attr("text-anchor", 'middle')
+				if(layout.vars.bar.text){
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum6);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(5, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum6)-5; })
+						.attr("text-anchor", 'middle')
+				}
 			}
 		}
 
@@ -1128,18 +1138,20 @@ define( [
 						}
 					});		
 				// Add the text on the bars
-				svg.select("#labels")
-					.selectAll(".text")
-					.data(vars.data)
-					.enter().append("text")
-					.text(function(d) {
-						return roundNumber(d.measureNum7);
-					})
-					.attr("x", function(d, i) { 
-						return x(d.dimension)+(visibleBarCounter(6, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
-					})
-					.attr("y", function(d) { return y(d.measureNum7)-5; })
-					.attr("text-anchor", 'middle')
+				if(layout.vars.bar.text){
+					svg.select("#labels")
+						.selectAll(".text")
+						.data(vars.data)
+						.enter().append("text")
+						.text(function(d) {
+							return roundNumber(d.measureNum7);
+						})
+						.attr("x", function(d, i) { 
+							return x(d.dimension)+(visibleBarCounter(6, 'bar_label') * (x.rangeBand()/(vars.bar.count*2))); // position + how many halfs * (total width of all bars / total halfs)
+						})
+						.attr("y", function(d) { return y(d.measureNum7)-5; })
+						.attr("text-anchor", 'middle')
+				}
 			}
 		}
 
