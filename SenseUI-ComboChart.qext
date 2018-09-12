@@ -2,7 +2,7 @@
 	"name": "SenseUI-ComboChart",
 	"description": "Basic empty visualization template",
 	"type": "visualization",
-	"version": "1.9.2",
+	"version": "1.9.1",
 	"icon" : "combo-chart",
 	"author": "yianni.ververis@qlik.com",
 	"homepage": "https://github.com/yianni-ververis/SenseUI-ComboChart",
