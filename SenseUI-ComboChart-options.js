@@ -32,7 +32,92 @@ var options = {
 				items: {  
 					dataHandling: {  
 						uses: "dataHandling"  
-					}  
+					},
+					refLine: {
+						type: "items",
+						label: "Reference Line",
+						items: {
+							displayRefLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Display Reference Line",
+								ref: "vars.refLine.show",
+								options: [{
+									value: true,
+									label: "Show"
+								}, {
+									value: false,
+									label: "Hide"
+								}],
+								defaultValue: false
+							},						
+							refLineValue: {
+								type: "integer",
+								label: "Reference Line",
+								ref: "vars.refLine.value",
+								show: function(data) {
+									if(data.vars.refLine.show){
+										return true;
+									}
+								}								
+							},
+							refLineWidth: {
+								type: "integer",
+								label: "Reference Line Width",
+								ref: "vars.refLine.width",
+								min: 1,
+								max: 15,
+								defaultValue: 2,
+								show: function(data) {
+									if(data.vars.refLine.show){
+										return true;
+									}
+								}								
+							},
+							refLineColor: {
+								type: "string",
+								expression: "none", 
+								label: "Line Color",
+								defaultValue: "#FF0000",
+								ref: "vars.refLine.color",
+								show: function(data) {
+									if(data.vars.refLine.show){
+										return true;
+									}
+								}
+							},
+							dashRefLine: {
+								type: "boolean",
+								component: "switch",
+								label: "Dashed Line",
+								ref: "vars.refLine.dash",
+								options: [{
+									value: true,
+									label: "Dashed"
+								}, {
+									value: false,
+									label: "Solid"
+								}],
+								defaultValue: false,
+								show: function(data) {
+									if(data.vars.refLine.show){
+										return true;
+									}
+								}
+							},
+							dashRefLineWidth: {
+								type: "integer",
+								label: "Dash Width",
+								ref: "vars.refLine.dashWidth",
+								defaultValue: 2,
+								show: function(data) {
+									if(data.vars.refLine.dash && data.vars.refLine.show){
+										return true;
+									}
+								}								
+							}
+						}
+					}
 				}  
 			},  			
 			settings : {
@@ -120,13 +205,6 @@ var options = {
 								defaultValue: 0,
 								ref: "vars.yaxis.min"
 							},
-							// footerExpression: {
-							// 	type: "string",
-							// 	expression: "none",
-							// 	label: "X-Axis Values Expression",
-							// 	defaultValue: "",
-							// 	ref: "vars.footerExpression"
-							// },
 							barWidth: {
 								type: "integer",
 								expression: "none",
@@ -212,6 +290,20 @@ var options = {
 									}
 								}
 							},
+							displayLegend: {
+								type: "boolean",
+								component: "switch",
+								label: "Display Text on Bars",
+								ref: "vars.bar.text",
+								options: [{
+									value: true,
+									label: "Show"
+								}, {
+									value: false,
+									label: "Hide"
+								}],
+								defaultValue: true
+							},							
 						},
 					},
 					measure1: {
@@ -447,20 +539,6 @@ var options = {
 									}
 								}
 							},
-							/*
-							measure2specialBarGroupingLinkedBar: {
-								type: "string",
-								expression: "none",
-								label: "Linked Bar",
-								defaultValue: "1",
-								ref: "vars.measure2.specialBarGroupingLinkedBar",
-								show : function(data) {
-									if (data.vars.measure2.type && data.vars.measure2.specialBarGrouping) {
-										return true;
-									}
-								}
-							},
-							*/
 							measure2specialBarGroupingAlignment: {
 								type: "boolean",
 								component: "switch",

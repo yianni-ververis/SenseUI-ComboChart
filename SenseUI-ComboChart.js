@@ -34,7 +34,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 	me.paint = function ($element, layout) {
 		var vars = $.extend(true, {
-			v: '1.9.1',
+			v: '1.9.2',
 			id: layout.qInfo.qId,
 			name: 'SenseUI-ComboChart',
 			width: $element.width(),
@@ -95,7 +95,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		vars.palette = ['#332288', '#88CCEE', '#DDCC77', '#117733', '#CC6677', '#3399CC', '#CC6666', '#99CC66', '#275378', '#B35A01', '#B974FD', '#993300', '#99CCCC', '#669933', '#898989', '#EDA1A1', '#C6E2A9', '#D4B881', '#137D77', '#D7C2EC', '#FF5500', '#15DFDF', '#93A77E', '#CB5090', '#BFBFBF'];
 		vars.legendAlignment = vars.legendAlignment ? vars.legendAlignment : 'center'; // Default for the apps that have been created before this version
 
-		/*
+  /*
   	inputMeasure: integer, e.g. for measure 5 -> input 4
   	inputOption: x-value for 'bar' or 'bar_label'
   */
@@ -239,10 +239,10 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		var yAxisMin = d3.min(vars.data, function (d) {
 			return Math.min(d.measureNum, d.measureNum2 ? d.measureNum2 : 0, d.measureNum3 ? d.measureNum3 : 0, d.measureNum4 ? d.measureNum4 : 0, d.measureNum5 ? d.measureNum5 : 0, d.measureNum6 ? d.measureNum6 : 0, d.measureNum7 ? d.measureNum7 : 0);
 		});
-		if (vars.yaxis && vars.yaxis.max && vars.yaxis.max > yAxisMax) {
-			yAxisMax = vars.yaxis.max;
+		if (layout.vars.yaxis.max != 0) {
+			yAxisMax = layout.vars.yaxis.max;
 		}
-		if (vars.yaxis && vars.yaxis.min && vars.yaxis.min < yAxisMin) {
+		if (layout.vars.yaxis.min != 0) {
 			yAxisMin = vars.yaxis.min;
 		}
 
@@ -268,8 +268,31 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 
 		// Add bottom horizontal line (x-axis)
 		svg.select("#grid").append("line").attr("x1", 0).attr("y1", height).attr("x2", width).attr("y2", height);
+		
+		// REFERENCE LINE
+		if (layout.vars.refLine.show) {
+		  var lineWidth = layout.vars.refLine.width;
+		  var refLineColor = layout.vars.refLine.color;
+		  var refLineValue = layout.vars.refLine.value;
+		  if (!layout.vars.refLine.dash) {
+		    svg.append("g")
+				.attr("transform", "translate(0, "+y(refLineValue)+")")
+				.append("line").attr("x2", width)
+				.style("stroke", refLineColor)
+				.style("stroke-width", lineWidth+"px");	
+		  
+		  } else {
+		      var dashWidth = layout.vars.refLine.dashWidth;
+			  svg.append("g")
+				.attr("transform", "translate(0, "+y(refLineValue)+")")
+				.append("line").attr("x2", width)
+				.style("stroke", refLineColor)
+				.style("stroke-width", lineWidth+"px")		
+				.style("stroke-dasharray", ""+dashWidth);
+		  }
+		}
 
-		/* ***********
+  /* ***********
    * MEASURE 1
    * ***********/
 		if (!vars.measure1.type) {
@@ -343,16 +366,18 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			});
 
 			// Add the text on top of the bars
-			svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+			if(layout.vars.bar.text){
+				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 				return roundNumber(d.measureNum);
-			}).attr("x", function (d, i) {
-				return x(d.dimension) + 1 * (x.rangeBand() / (vars.bar.count * 2)); // position + total width of all bars / total halfs
-			}).attr("y", function (d) {
-				return y(d.measureNum) - 5;
-			}).attr("text-anchor", 'middle');
+				}).attr("x", function (d, i) {
+					return x(d.dimension) + 1 * (x.rangeBand() / (vars.bar.count * 2)); // position + total width of all bars / total halfs
+				}).attr("y", function (d) {
+					return y(d.measureNum) - 5;
+				}).attr("text-anchor", 'middle');
+			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 2
    * ***********/
 		if (vars.measure2.label && vars.measure2.visible) {
@@ -434,7 +459,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				if (!vars.measure2.specialBarGrouping) {
+				if (!vars.measure2.specialBarGrouping & layout.vars.bar.text) {
 					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
 						return roundNumber(d.measureNum2);
 					}).attr("x", function (d, i) {
@@ -446,7 +471,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 3
    * ***********/
 		if (vars.measure3.label && vars.measure3.visible) {
@@ -520,17 +545,19 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
-					return roundNumber(d.measureNum3);
-				}).attr("x", function (d, i) {
-					return x(d.dimension) + visibleBarCounter(2, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
-				}).attr("y", function (d) {
-					return y(d.measureNum3) - 5;
-				}).attr("text-anchor", 'middle');
+				if(layout.vars.bar.text){
+					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+						return roundNumber(d.measureNum3);
+					}).attr("x", function (d, i) {
+						return x(d.dimension) + visibleBarCounter(2, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
+					}).attr("y", function (d) {
+						return y(d.measureNum3) - 5;
+					}).attr("text-anchor", 'middle');					
+				}
 			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 4
    * ***********/
 		if (vars.measure4.label && vars.measure4.visible) {
@@ -604,17 +631,19 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
-					return roundNumber(d.measureNum4);
-				}).attr("x", function (d, i) {
-					return x(d.dimension) + visibleBarCounter(3, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
-				}).attr("y", function (d) {
-					return y(d.measureNum4) - 5;
-				}).attr("text-anchor", 'middle');
+				if(layout.vars.bar.text){
+					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+						return roundNumber(d.measureNum4);
+					}).attr("x", function (d, i) {
+						return x(d.dimension) + visibleBarCounter(3, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
+					}).attr("y", function (d) {
+						return y(d.measureNum4) - 5;
+					}).attr("text-anchor", 'middle');
+				}
 			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 5
    * ***********/
 		if (vars.measure5.label && vars.measure5.visible) {
@@ -688,17 +717,19 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
-					return roundNumber(d.measureNum5);
-				}).attr("x", function (d, i) {
-					return x(d.dimension) + visibleBarCounter(4, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
-				}).attr("y", function (d) {
-					return y(d.measureNum5) - 5;
-				}).attr("text-anchor", 'middle');
+				if(layout.vars.bar.text){
+					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+						return roundNumber(d.measureNum5);
+					}).attr("x", function (d, i) {
+						return x(d.dimension) + visibleBarCounter(4, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
+					}).attr("y", function (d) {
+						return y(d.measureNum5) - 5;
+					}).attr("text-anchor", 'middle');					
+				}
 			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 6
    * ***********/
 		if (vars.measure6.label && vars.measure6.visible) {
@@ -772,17 +803,19 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
-					return roundNumber(d.measureNum6);
-				}).attr("x", function (d, i) {
-					return x(d.dimension) + visibleBarCounter(5, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
-				}).attr("y", function (d) {
-					return y(d.measureNum6) - 5;
-				}).attr("text-anchor", 'middle');
+				if(layout.vars.bar.text){
+					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+						return roundNumber(d.measureNum6);
+					}).attr("x", function (d, i) {
+						return x(d.dimension) + visibleBarCounter(5, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
+					}).attr("y", function (d) {
+						return y(d.measureNum6) - 5;
+					}).attr("text-anchor", 'middle');					
+				}
 			}
 		}
 
-		/* ***********
+  /* ***********
    * MEASURE 7
    * ***********/
 		if (vars.measure7.label && vars.measure7.visible) {
@@ -856,17 +889,19 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 					}
 				});
 				// Add the text on the bars
-				svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
-					return roundNumber(d.measureNum7);
-				}).attr("x", function (d, i) {
-					return x(d.dimension) + visibleBarCounter(6, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
-				}).attr("y", function (d) {
-					return y(d.measureNum7) - 5;
-				}).attr("text-anchor", 'middle');
+				if(layout.vars.bar.text){
+					svg.select("#labels").selectAll(".text").data(vars.data).enter().append("text").text(function (d) {
+						return roundNumber(d.measureNum7);
+					}).attr("x", function (d, i) {
+						return x(d.dimension) + visibleBarCounter(6, 'bar_label') * (x.rangeBand() / (vars.bar.count * 2)); // position + how many halfs * (total width of all bars / total halfs)
+					}).attr("y", function (d) {
+						return y(d.measureNum7) - 5;
+					}).attr("text-anchor", 'middle');
+				}
 			}
 		}
 
-		/* ***********
+  /* ***********
    * FOOTER EXPRESSION
    * ***********/
 		if (vars.footerExpression) {}
@@ -906,8 +941,7 @@ define(["qlik", "jquery", 'css!./SenseUI-ComboChart.css', './SenseUI-ComboChart-
 		// 		"qValue": "{ \"data\": \"this is the data\"}"
 		// 	}
 		// ], false);
-
-
+		
 		// TOOLTIPS
 		if ($("." + vars.id + ".d3-tip").length) {
 			$("." + vars.id + ".d3-tip").remove();
